@@ -6,6 +6,7 @@ const DONE_TASKS = 'doneTasks';
 let currentClass = localStorage.getItem(KEY_CLASS) || '';
 let currentTasks = [];
 let existingClasses = []; // 既存のクラス一覧を保持する変数
+let userName = localStorage.getItem(USER_NAME) || '';
 
 let isModalClosing = false;
 
@@ -137,11 +138,12 @@ function closeNativePopup() {
 // --- 初期化 ---
 async function init() {
     // ユーザー識別データがあるかチェック
-    if (!localStorage.getItem(USER_NAME)) {
+    if (userName) {
         showClassSelection(false);
         document.getElementById('username-init-modal').style.display = 'flex';
         return; 
     }
+    // クラスの選択情報があるかチェック
     if (!currentClass) {
         showClassSelection(false);
     } else {
@@ -167,10 +169,12 @@ function submitInitialUsername() {
     const attendanceNo = document.getElementById('init-attendance').value;
     const school = document.getElementById('init-school').value;
 
-    const finalUserName = grade+cls+attendanceNo+school;
-    localStorage.setItem(USER_NAME, finalUserName);
+    userName = grade+cls+attendanceNo+school;
+    localStorage.setItem(USER_NAME, userName);
 
     document.getElementById('username-init-modal').style.display = 'none';
+
+    init();
 }
 
 // クラスリストのみを取得して変数に格納する内部関数
@@ -521,9 +525,7 @@ async function submitTask() {
         return;
     }
 
-    // localStorageからuserNameを取得
-    const storedUsername = localStorage.getItem(USER_NAME);
-    if (!storedUsername) {
+    if (!userName) {
         showNativePopup('ユーザー情報が消えています。再設定してください。');
         init(); // 再度モーダルを出すためにinitを呼ぶ
         return;
@@ -539,7 +541,7 @@ async function submitTask() {
             title: title, 
             detail: detail, 
             deadline: formattedDeadline, 
-            username: storedUsername
+            username: userName
         }
     };
     
@@ -575,7 +577,12 @@ async function confirmDelete(id) {
         cancelText: 'キャンセル',
         onConfirm: async () => {
             closeModals();
-            const payload = { action: 'delete', className: currentClass, id: id };
+            const payload = {
+                action: 'delete',
+                className: currentClass,
+                id: id,
+                userName: userName
+            };
 
             try {
                 document.getElementById('status-msg').style.display = 'block';
