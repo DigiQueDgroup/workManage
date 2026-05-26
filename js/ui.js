@@ -141,7 +141,6 @@ async function init() {
     if (userName) {
         showClassSelection(false);
         document.getElementById('username-init-modal').style.display = 'flex';
-        return; 
     }
     // クラスの選択情報があるかチェック
     if (!currentClass) {
@@ -174,7 +173,7 @@ function submitInitialUsername() {
 
     document.getElementById('username-init-modal').style.display = 'none';
 
-    init();
+    // init();
 }
 
 // クラスリストのみを取得して変数に格納する内部関数
