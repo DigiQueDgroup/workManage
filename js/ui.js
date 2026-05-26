@@ -138,7 +138,7 @@ function closeNativePopup() {
 // --- 初期化 ---
 async function init() {
     // ユーザー識別データがあるかチェック
-    if (userName) {
+    if (!userName) {
         showClassSelection(false);
         document.getElementById('username-init-modal').style.display = 'flex';
         return;
