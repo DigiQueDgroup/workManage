@@ -67,7 +67,7 @@ function cleanupDoneTasks(latestTasks) {
     const cleanedList = doneList.filter(fingerprint => validFingerprints.includes(fingerprint));
 
     // ストレージを更新
-    localStorage.setItem('dev_done_tasks', JSON.stringify(cleanedList));
+    localStorage.setItem(DONE_TASKS, JSON.stringify(cleanedList));
     console.log(`キャッシュを整理しました。保持中: ${cleanedList.length}件`);
 }
 
@@ -87,7 +87,7 @@ function toggleTaskStatus(event, taskId) {
         doneList.push(fingerprint);
     }
 
-    localStorage.setItem('dev_done_tasks', JSON.stringify(doneList));
+    localStorage.setItem(DONE_TASKS, JSON.stringify(doneList));
     renderTasks(currentTasks); // 画面を即座に更新
 }
 
