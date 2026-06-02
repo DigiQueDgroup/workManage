@@ -16,7 +16,7 @@ body {
     color: var(--text-white);
     font-family: 'Zen Maru Gothic', sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 20px 20px 80px 20px;
     min-height: 100vh;
     /* テキストのレンダリングを最適化 */
     text-rendering: optimizeLegibility;
