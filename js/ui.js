@@ -418,12 +418,41 @@ async function loadTasks() {
     }
 }
 
+// 残り時間を計算するヘルパー関数
+function getRemainingTime(isoString) {
+    if (!isoString) return { text: '', isUrgent: false };
+    const deadline = new Date(isoString);
+    if (isNaN(deadline.getTime())) return { text: '', isUrgent: false };
+
+    const now = new Date();
+    const diffMs = deadline - now;
+
+    if (diffMs <= 0) {
+        return { text: '期限切れ', isUrgent: true };
+    }
+
+    // 残り総分数（Math.ceilで秒単位を切り上げ）
+    const totalMinutes = Math.ceil(diffMs / (1000 * 60));
+
+    if (totalMinutes < 60 * 24) {
+        // 24時間未満：時:分
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        return { text: `残り ${timeStr}`, isUrgent: true };
+    } else {
+        // 24時間以上：一日単位
+        const days = Math.floor(totalMinutes / (60 * 24));
+        return { text: `残り ${days}日`, isUrgent: false };
+    }
+}
+
 // 課題のデータを表示
 function renderTasks(tasks) {
     const container = document.getElementById('task-list');
     container.innerHTML = '';
     const doneList = getDoneTasks();
-
+    
     // 空のオブジェクトや、ID・教科・課題名がすべて空の無効なデータを弾く
     const validTasks = tasks.filter(task => task && (task.課題id || task.教科 || task.課題名));
     // 有効な課題が1つもない場合はメッセージを表示してカード作成を終了する
@@ -438,29 +467,31 @@ function renderTasks(tasks) {
 
     validTasks.forEach(task => {
         const isDone = doneList.includes(getTaskFingerprint(task));
+        const remaining = getRemainingTime(task.期限); // 残り時間を取得
     
-    const card = document.createElement('div');
+        const card = document.createElement('div');
 
-    card.className = 'task-card';
-    card.onclick = () => openDetailModal(task.課題id);
+        card.className = 'task-card';
+        card.onclick = () => openDetailModal(task.課題id);
 
-    card.innerHTML = `
-        <button class="status-toggle-btn ${isDone ? 'is-done' : ''}" 
-                onclick="toggleTaskStatus(event, '${task.課題id}')">
-            ${isDone ? '完了' : '未完了'}
-        </button>
+        card.innerHTML = `
+            <button class="status-toggle-btn ${isDone ? 'is-done' : ''}" 
+                    onclick="toggleTaskStatus(event, '${task.課題id}')">
+                ${isDone ? '完了' : '未完了'}
+            </button>
 
-        <div class="subject">${task.教科 || "不明"}</div>
-        
-        <div class="title">${task.課題名 || "無題の課題"}</div>
-        
-        <div class="detail-badge">${task.詳細 || "==詳細なし=="}</div>
-        
-        <div class="task-footer">
-            <div class="deadline">${formatDateTime(task.期限)}</div>
-        </div>
-    `;
-    container.appendChild(card);
+            <div class="subject">${task.教科 || "不明"}</div>
+            
+            <div class="title">${task.課題名 || "無題の課題"}</div>
+            
+            <div class="detail-badge">${task.詳細 || "==詳細なし=="}</div>
+            
+            <div class="task-footer">
+                <div class="time-left ${remaining.isUrgent ? 'urgent' : ''}">${remaining.text}</div>
+                <div class="deadline">${formatDateTime(task.期限)}</div>
+            </div>
+        `;
+        container.appendChild(card);
     });
 }
 
