@@ -1,0 +1,28 @@
+name: Upstream Sync
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 毎日日本時間の午前9時に実行（UTC 0:00）
+  workflow_dispatch: # 手動で即時実行したいボタンも設置
+
+jobs:
+  sync_latest_from_upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: main # 自動で更新を受け入れるブランチ
+
+      - name: Sync upstream changes
+        id: sync
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4.1
+        with:
+          target_sync_branch: main
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          upstream_sync_branch: main # フォーク元のメインブランチ名
+          upstream_sync_repo: tomoIss/workManage-WebFront # 触らない
+
+      - name: Sync check
+        if: failure()
+        run: echo "コンフリクトが発生したため自動同期に失敗しました。"
