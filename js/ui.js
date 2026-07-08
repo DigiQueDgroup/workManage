@@ -8,6 +8,9 @@ let currentTasks = [];
 let existingClasses = []; // 既存のクラス一覧を保持する変数
 let userName = localStorage.getItem(USER_NAME) || '';
 
+let calendar = null; // FullCalendarのインスタンスを保持する変数
+let currentViewMode = 'list'; // 現在の表示モードを管理 ('list' または 'calendar')
+
 let isModalClosing = false;
 
 // オフライン検知を改善する関数
@@ -401,9 +404,14 @@ async function loadTasks() {
             if (currentTasks.length === 0) {
                 statusMsg.innerText = '現在、課題はありません。';
                 container.innerHTML = '';
+                if (calendar) calendar.removeAllEvents();
             } else {
                 statusMsg.style.display = 'none';
                 renderTasks(currentTasks);
+
+                if (currentViewMode === 'calendar') {
+                    renderCalendar();
+                }
             }
         } else {
             statusMsg.innerText = 'データエラー: ' + result.status;
@@ -666,6 +674,80 @@ const handleOutsideClick = (event) => {
         closeModals();
     }
 };
+// --- 追加: リスト表示とカレンダー表示の切り替えロジック ---
+function switchView(mode) {
+    currentViewMode = mode;
+    const listView = document.getElementById('task-list');
+    const calendarView = document.getElementById('calendar-view');
+    const btnList = document.getElementById('btn-list-view');
+    const btnCalendar = document.getElementById('btn-calendar-view');
+
+    if (mode === 'calendar') {
+        if (listView) listView.style.display = 'none';
+        if (calendarView) calendarView.style.display = 'block';
+        btnList.classList.remove('active');
+        btnCalendar.classList.add('active');
+        
+        // カレンダーを描画
+        renderCalendar();
+    } else {
+        if (listView) listView.style.display = ''; // CSS本来のgrid表示に戻す
+        if (calendarView) calendarView.style.display = 'none';
+        btnList.classList.add('active');
+        btnCalendar.classList.remove('active');
+    }
+}
+
+// --- 追加: カレンダーの描画と課題データのマッピング ---
+function renderCalendar() {
+    const calendarEl = document.getElementById('calendar-view');
+    if (!calendarEl) return;
+
+    const doneList = getDoneTasks();
+    
+    // 既存の課題データ(currentTasks)をFullCalendarの形式にコンバート
+    const events = currentTasks.map(task => {
+        const isDone = doneList.includes(getTaskFingerprint(task));
+        const displayTitle = `[${task.教科 || '不明'}] ${task.課題名 || '無題'}`;
+        
+        return {
+            id: String(task.課題id),
+            title: isDone ? `✅ ${displayTitle}` : displayTitle,
+            start: task.期限, // ISO形式の期限日時
+            className: isDone ? 'fc-event-done' : '', // 完了済み用のCSSクラス
+            // 熟練エンジニアの評価に基づき、元の課題IDの型を安全に保持
+            extendedProps: {
+                originalId: task.課題id
+            }
+        };
+    });
+
+    if (!calendar) {
+        // カレンダーの初回生成
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'ja',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: ''
+            },
+            events: events,
+            // カレンダー内の課題をタップしたときの処理
+            eventClick: function(info) {
+                // 拡張プロパティからオリジナルのID（型を維持）を渡して既存モーダルを開く
+                openDetailModal(info.event.extendedProps.originalId);
+            },
+            handleWindowResize: true,
+            height: 'auto'
+        });
+        calendar.render();
+    } else {
+        // 2回目以降はイベントデータだけを最新に差し替えて更新
+        calendar.removeAllEvents();
+        calendar.addEventSource(events);
+    }
+}
 //通常のクリック
 window.addEventListener('click',handleOutsideClick);
 window.addEventListener('touchstart', handleOutsideClick, { passive: true });
