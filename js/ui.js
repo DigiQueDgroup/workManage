@@ -670,8 +670,7 @@ function switchView(mode) {
         if (btnCalendar) btnCalendar.classList.remove('active');
     }
 }
-
-// --- カレンダーの描画と課題データのプロット ---
+// --- 追加: カレンダーの描画と課題データのプロット ---
 function renderCalendar() {
     const calendarEl = document.getElementById('calendar-view');
     if (!calendarEl) return;
@@ -694,10 +693,11 @@ function renderCalendar() {
     });
 
     if (!calendar) {
+        // カレンダーの初回生成（ここに曜日設定が入っています！）
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ja',
-            dayHeaderFormat: { weekday: 'short' },
+            dayHeaderFormat: { weekday: 'short' }, // 👈 曜日を「月」「火」...と表示
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
@@ -712,6 +712,7 @@ function renderCalendar() {
         });
         calendar.render();
     } else {
+        // 2回目以降はイベントデータだけを最新に更新
         calendar.removeAllEvents();
         calendar.addEventSource(events);
     }
