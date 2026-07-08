@@ -697,6 +697,7 @@ function renderCalendar() {
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ja',
+            dayHeaderFormat: { weekday: 'short' },
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
