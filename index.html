@@ -18,10 +18,7 @@
     <link rel="stylesheet" href="css/style.css">
     
     <!-- JavaScriptはjs下に　※apiとuiの宣言順番は変えない -->
-    <script src="js/api.js"></script>
-    <script src="js/ui.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script src="js/api.js"></script>
     <script src="js/ui.js"></script>
     
@@ -82,8 +79,17 @@
         </button>
 
         <button class="add-btn" onclick="openAddModal()">新たな課題の追加</button>
-    </header>
+    
+</header> <div class="view-switch-container">
+    <button id="btn-list-view" class="switch-btn active" onclick="switchView('list')">リストで見る</button>
+    <button id="btn-calendar-view" class="switch-btn" onclick="switchView('calendar')">カレンダーで見る</button>
+</div>
 
+<div id="status-msg" style="text-align: center; font-weight: bold; margin-bottom: 20px; display: none;"></div>
+
+<div id="task-list" class="task-grid"></div>
+
+<div id="calendar-view"></div>
     <main id="task-list" class="task-grid"></main>
 
     <div id="status-msg">チョークで書き込み中...</div>
@@ -153,14 +159,6 @@
         </div>
     </div>
 
-    <div class="view-switch-container">
-        <button id="btn-list-view" class="switch-btn active" onclick="switchView('list')">リストで見る</button>
-        <button id="btn-calendar-view" class="switch-btn" onclick="switchView('calendar')">カレンダーで見る</button>
-    </div>
-
-    <div id="task-list" class="task-grid"></div>
-
-    <div id="calendar-view"></div>
 
     <!-- 初期ユーザー名設定モーダル -->
     <div id="username-init-modal" class="modal" style="display: none; z-index: 2000; background: rgba(0,0,0,0.85);">
