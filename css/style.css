@@ -604,3 +604,74 @@ header {
     transform: translate(1px, 1px);
     box-shadow: 1px 1px 0px #000;
 }
+
+/* --- 表示切り替えボタン（黒板風） --- */
+.view-switch-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px auto;
+    max-width: 1200px;
+}
+.switch-btn {
+    background: transparent;
+    color: var(--text-white);
+    border: 2px dashed rgba(255, 255, 255, 0.6); /* チョークの点線風 */
+    padding: 8px 20px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+.switch-btn.active, .switch-btn:hover {
+    background: var(--text-white);
+    color: var(--bg-green); /* 反転して黒板の緑文字に */
+    border-style: solid;
+}
+
+/* --- FullCalendar 黒板風カスタマイズ --- */
+#calendar-view {
+    display: none; /* 初期状態は非表示 */
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.03); /* ほんのりチョークの粉が乗ったような背景 */
+    border: 3px double var(--text-white); /* 二本線のチョーク枠 */
+    border-radius: 8px;
+    padding: 15px;
+}
+/* カレンダー内のテキストカラー */
+.fc {
+    color: var(--text-white) !important;
+}
+/* カレンダーの枠線を薄い白（チョーク線）に変更 */
+.fc td, .fc th {
+    border-color: rgba(255, 255, 255, 0.25) !important;
+}
+/* 月移動ボタンなどの調整 */
+.fc .fc-button-primary {
+    background-color: var(--card-blue) !important;
+    border: 1px solid var(--text-white) !important;
+    font-weight: 700;
+}
+/* 課題（イベント）の共通デザイン（色分けせずシンプルに統一） */
+.fc-v-event, .fc-h-event {
+    background-color: var(--card-blue) !important;
+    border: 1px solid var(--shadow-yellow) !important; /* 目立たせるため黄色いチョーク枠 */
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.fc-event-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 長いタイトルは「...」にする */
+}
+/* 完了済みの課題は少し薄くして見やすく差別化 */
+.fc-event-done {
+    opacity: 0.5;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
