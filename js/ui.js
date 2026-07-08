@@ -93,6 +93,7 @@ function toggleTaskStatus(event, taskId) {
 
     localStorage.setItem(DONE_TASKS, JSON.stringify(doneList));
     renderTasks(currentTasks); // 画面を即座に更新
+    if (currentViewMode === 'calendar') renderCalendar(); // カレンダー表示中ならカレンダーも更新
 }
 
 function showNativePopup(message, options = {}) {
@@ -328,26 +329,21 @@ async function createNewClass() {
     const year = getSchoolYearCode();
     
     // クラス名の形式を整形 (例: 3-4issR8)
-    // ※末尾の R8 は以前の運用ルールに合わせて付与しています
     const normalized = `${grade}-${clsNum}${school}${year}`;
 
     try {
         // 既存のクラスリスト（existingClasses）から重複を確認
         const isExisting = existingClasses.some(cls => {
             if (!cls) return false;
-            // 念のため小文字・空白を揃えて比較
             return String(cls).trim().toLowerCase() === normalized.toLowerCase();
         });
 
         if (isExisting) {
-            // すでに存在する場合は、作成せずそのまま接続
             showNativePopup(`既存のクラス「${normalized}」が見つかりました。接続します。`);
         } else {
-            // 存在しない場合は新規作成（旧来の selectClass で作成処理へ）
             showNativePopup(`新規クラス「${normalized}」を作成します。`);
         }
         
-        // 最終的な接続処理
         selectClass(normalized);
         
     } catch (e) {
@@ -398,7 +394,6 @@ async function loadTasks() {
         if (result.status === 'SUCCESS') {
             currentTasks = result.tasks || [];
             saveCachedTasks(currentClass, currentTasks);
-            // 課題進捗用のキャッシュで古いものを削除
             cleanupDoneTasks(currentTasks);
             
             if (currentTasks.length === 0) {
@@ -439,17 +434,14 @@ function getRemainingTime(isoString) {
         return { text: '期限切れ', isUrgent: true };
     }
 
-    // 残り総分数（Math.ceilで秒単位を切り上げ）
     const totalMinutes = Math.ceil(diffMs / (1000 * 60));
 
     if (totalMinutes < 60 * 24) {
-        // 24時間未満：時:分
         const hours = Math.floor(totalMinutes / 60);
         const minutes = totalMinutes % 60;
         const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
         return { text: `残り ${timeStr}`, isUrgent: true };
     } else {
-        // 24時間以上：一日単位
         const days = Math.floor(totalMinutes / (60 * 24));
         return { text: `残り ${days}日`, isUrgent: false };
     }
@@ -461,9 +453,7 @@ function renderTasks(tasks) {
     container.innerHTML = '';
     const doneList = getDoneTasks();
     
-    // 空のオブジェクトや、ID・教科・課題名がすべて空の無効なデータを弾く
     const validTasks = tasks.filter(task => task && (task.課題id || task.教科 || task.課題名));
-    // 有効な課題が1つもない場合はメッセージを表示してカード作成を終了する
     if (validTasks.length === 0) {
         const statusMsg = document.getElementById('status-msg');
         if (statusMsg) {
@@ -475,10 +465,9 @@ function renderTasks(tasks) {
 
     validTasks.forEach(task => {
         const isDone = doneList.includes(getTaskFingerprint(task));
-        const remaining = getRemainingTime(task.期限); // 残り時間を取得
+        const remaining = getRemainingTime(task.期限);
     
         const card = document.createElement('div');
-
         card.className = 'task-card';
         card.onclick = () => openDetailModal(task.課題id);
 
@@ -508,11 +497,10 @@ function closeModals() {
     document.getElementById('add-modal').style.display = 'none';
     document.getElementById('detail-modal').style.display = 'none';
 
-    // 0.5秒間、新しい操作を受け付けないようにする
     isModalClosing = true;
     setTimeout(() => {
         isModalClosing = false;
-    }, 500); // 500ミリ秒 = 0.5秒
+    }, 500);
 }
 
 async function openAddModal() {
@@ -566,7 +554,7 @@ async function submitTask() {
 
     if (!userName) {
         showNativePopup('ユーザー情報が消えています。再設定してください。');
-        init(); // 再度モーダルを出すためにinitを呼ぶ
+        init();
         return;
     }
 
@@ -583,7 +571,6 @@ async function submitTask() {
             username: userName
         }
     };
-    
 
     try {
         closeModals();
@@ -648,84 +635,20 @@ function formatDateTime(isoString) {
     return `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
-// --- 追加: 更新処理（ui.jsの末尾などへ） ---
 async function refreshTasks() {
     const icon = document.querySelector('.refresh-icon');
-    // アイコンを回転させるアニメーションクラスを付与
-    icon.classList.add('spinning');
+    if (icon) icon.classList.add('spinning');
     
     try {
-        await loadTasks(); // 既存のデータ取得関数を実行
+        await loadTasks();
     } finally {
-        // 0.5秒後にアニメーションクラスを除去（回転を止める）
         setTimeout(() => {
-            icon.classList.remove('spinning');
+            if (icon) icon.classList.remove('spinning');
         }, 500);
     }
 }
 
-// --- モーダルの背景クリックで閉じる ---
-const handleOutsideClick = (event) => {
-    const detailModal = document.getElementById('detail-modal');
-    const addModal = document.getElementById('add-modal');
-
-    // event.target（実際に触れた要素）が、モーダルの背景要素そのものであるか判定
-    if (event.target === detailModal || event.target === addModal) {
-        closeModals();
-    }
-};
-// --- 追加: リスト表示とカレンダー表示の切り替えロジック ---
-function switchView(mode) {
-    currentViewMode = mode;
-    const listView = document.getElementById('task-list');
-    const calendarView = document.getElementById('calendar-view');
-    const btnList = document.getElementById('btn-list-view');
-    const btnCalendar = document.getElementById('btn-calendar-view');
-
-    if (mode === 'calendar') {
-        if (listView) listView.style.display = 'none';
-        if (calendarView) calendarView.style.display = 'block';
-        btnList.classList.remove('active');
-        btnCalendar.classList.add('active');
-        
-        // カレンダーを描画
-        renderCalendar();
-    } else {
-        if (listView) listView.style.display = ''; // CSS本来のgrid表示に戻す
-        if (calendarView) calendarView.style.display = 'none';
-        btnList.classList.add('active');
-        btnCalendar.classList.remove('active');
-    }
-}
-    if (!calendar) {
-        // カレンダーの初回生成
-        calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            locale: 'ja',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: ''
-            },
-            events: events,
-            // カレンダー内の課題をタップしたときの処理
-            eventClick: function(info) {
-                // 拡張プロパティからオリジナルのID（型を維持）を渡して既存モーダルを開く
-                openDetailModal(info.event.extendedProps.originalId);
-            },
-            handleWindowResize: true,
-            height: 'auto'
-        });
-        calendar.render();
-    } else {
-        // 2回目以降はイベントデータだけを最新に差し替えて更新
-        calendar.removeAllEvents();
-        calendar.addEventSource(events);
-    }
-}
-// --- 既存のui.jsの一番最後の行の「 } 」のすぐ下に以下を配置します ---
-
-// --- 追加: リスト表示とカレンダー表示の切り替えロジック ---
+// --- リスト表示とカレンダー表示の切り替え ---
 function switchView(mode) {
     currentViewMode = mode;
     const listView = document.getElementById('task-list');
@@ -739,7 +662,6 @@ function switchView(mode) {
         if (btnList) btnList.classList.remove('active');
         if (btnCalendar) btnCalendar.classList.add('active');
         
-        // カレンダーを描画
         renderCalendar();
     } else {
         if (listView) listView.style.display = ''; // 本来のgrid表示に戻す
@@ -749,14 +671,13 @@ function switchView(mode) {
     }
 }
 
-// --- 追加: カレンダーの描画と課題データのマッピング ---
+// --- カレンダーの描画と課題データのプロット ---
 function renderCalendar() {
     const calendarEl = document.getElementById('calendar-view');
     if (!calendarEl) return;
 
     const doneList = getDoneTasks();
     
-    // 既存の課題データをFullCalendarの形式に変換
     const events = currentTasks.map(task => {
         const isDone = doneList.includes(getTaskFingerprint(task));
         const displayTitle = `[${task.教科 || '不明'}] ${task.課題名 || '無題'}`;
@@ -773,7 +694,6 @@ function renderCalendar() {
     });
 
     if (!calendar) {
-        // カレンダーの初回生成
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ja',
@@ -784,7 +704,6 @@ function renderCalendar() {
             },
             events: events,
             eventClick: function(info) {
-                // タップで既存の詳細モーダルを開く
                 openDetailModal(info.event.extendedProps.originalId);
             },
             handleWindowResize: true,
@@ -792,13 +711,20 @@ function renderCalendar() {
         });
         calendar.render();
     } else {
-        // 2回目以降はイベントデータだけを最新に更新
         calendar.removeAllEvents();
         calendar.addEventSource(events);
     }
 }
-//通常のクリック
-window.addEventListener('click',handleOutsideClick);
-window.addEventListener('touchstart', handleOutsideClick, { passive: true });
 
+// イベントリスナーの登録
+const handleOutsideClick = (event) => {
+    const detailModal = document.getElementById('detail-modal');
+    const addModal = document.getElementById('add-modal');
+    if (event.target === detailModal || event.target === addModal) {
+        closeModals();
+    }
+};
+
+window.addEventListener('click', handleOutsideClick);
+window.addEventListener('touchstart', handleOutsideClick, { passive: true });
 window.addEventListener('DOMContentLoaded', init);
