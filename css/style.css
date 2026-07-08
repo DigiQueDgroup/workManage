@@ -676,9 +676,6 @@ header {
     border-color: rgba(255, 255, 255, 0.4) !important;
 }
 /* カレンダーの曜日や日付の文字色をはっきり見えるように修正 */
-.fc .fc-col-header-cell {
-    background-color: #f8f9fa; /* 曜日の背景を薄いグレーにして見やすくする（お好みで消してもOK） */
-}
 
 .fc .fc-col-header-cell-cushion {
     color: #333333 !important; /* 曜日の文字色を濃いグレー（または黒）にする */
