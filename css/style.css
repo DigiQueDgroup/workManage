@@ -690,3 +690,29 @@ header {
     text-decoration: none !important;
     padding: 4px 8px !important;
 }
+/* カレンダーのタイトル（◯月）を完全に画面の中央に配置する */
+.fc .fc-toolbar {
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr; /* 左・中・右のスペースを3等分にする */
+    align-items: center;
+    gap: 10px;
+}
+
+.fc .fc-toolbar-chunk:nth-child(1) {
+    justify-self: start; /* ボタンは左寄せ */
+}
+
+.fc .fc-toolbar-chunk:nth-child(2) {
+    justify-self: center; /* タイトルは完全中央寄せ */
+}
+
+.fc .fc-toolbar-chunk:nth-child(3) {
+    justify-self: end; /* 右側は空ですがバランスを取るためにキープ */
+}
+
+/* スマホなどの狭い画面で崩れないように微調整 */
+@media (max-width: 480px) {
+    .fc .fc-toolbar-title {
+        font-size: 1.25rem !important; /* 文字が大きすぎてはみ出るのを防ぐ */
+    }
+}
