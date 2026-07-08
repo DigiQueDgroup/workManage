@@ -697,31 +697,6 @@ function switchView(mode) {
         btnCalendar.classList.remove('active');
     }
 }
-
-// --- 追加: カレンダーの描画と課題データのマッピング ---
-function renderCalendar() {
-    const calendarEl = document.getElementById('calendar-view');
-    if (!calendarEl) return;
-
-    const doneList = getDoneTasks();
-    
-    // 既存の課題データ(currentTasks)をFullCalendarの形式にコンバート
-    const events = currentTasks.map(task => {
-        const isDone = doneList.includes(getTaskFingerprint(task));
-        const displayTitle = `[${task.教科 || '不明'}] ${task.課題名 || '無題'}`;
-        
-        return {
-            id: String(task.課題id),
-            title: isDone ? `✅ ${displayTitle}` : displayTitle,
-            start: task.期限, // ISO形式の期限日時
-            className: isDone ? 'fc-event-done' : '', // 完了済み用のCSSクラス
-            // 熟練エンジニアの評価に基づき、元の課題IDの型を安全に保持
-            extendedProps: {
-                originalId: task.課題id
-            }
-        };
-    });
-
     if (!calendar) {
         // カレンダーの初回生成
         calendar = new FullCalendar.Calendar(calendarEl, {
@@ -744,6 +719,80 @@ function renderCalendar() {
         calendar.render();
     } else {
         // 2回目以降はイベントデータだけを最新に差し替えて更新
+        calendar.removeAllEvents();
+        calendar.addEventSource(events);
+    }
+}
+// --- 既存のui.jsの一番最後の行の「 } 」のすぐ下に以下を配置します ---
+
+// --- 追加: リスト表示とカレンダー表示の切り替えロジック ---
+function switchView(mode) {
+    currentViewMode = mode;
+    const listView = document.getElementById('task-list');
+    const calendarView = document.getElementById('calendar-view');
+    const btnList = document.getElementById('btn-list-view');
+    const btnCalendar = document.getElementById('btn-calendar-view');
+
+    if (mode === 'calendar') {
+        if (listView) listView.style.display = 'none';
+        if (calendarView) calendarView.style.display = 'block';
+        if (btnList) btnList.classList.remove('active');
+        if (btnCalendar) btnCalendar.classList.add('active');
+        
+        // カレンダーを描画
+        renderCalendar();
+    } else {
+        if (listView) listView.style.display = ''; // 本来のgrid表示に戻す
+        if (calendarView) calendarView.style.display = 'none';
+        if (btnList) btnList.classList.add('active');
+        if (btnCalendar) btnCalendar.classList.remove('active');
+    }
+}
+
+// --- 追加: カレンダーの描画と課題データのマッピング ---
+function renderCalendar() {
+    const calendarEl = document.getElementById('calendar-view');
+    if (!calendarEl) return;
+
+    const doneList = getDoneTasks();
+    
+    // 既存の課題データをFullCalendarの形式に変換
+    const events = currentTasks.map(task => {
+        const isDone = doneList.includes(getTaskFingerprint(task));
+        const displayTitle = `[${task.教科 || '不明'}] ${task.課題名 || '無題'}`;
+        
+        return {
+            id: String(task.課題id),
+            title: isDone ? `✅ ${displayTitle}` : displayTitle,
+            start: task.期限,
+            className: isDone ? 'fc-event-done' : '',
+            extendedProps: {
+                originalId: task.課題id
+            }
+        };
+    });
+
+    if (!calendar) {
+        // カレンダーの初回生成
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'ja',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: ''
+            },
+            events: events,
+            eventClick: function(info) {
+                // タップで既存の詳細モーダルを開く
+                openDetailModal(info.event.extendedProps.originalId);
+            },
+            handleWindowResize: true,
+            height: 'auto'
+        });
+        calendar.render();
+    } else {
+        // 2回目以降はイベントデータだけを最新に更新
         calendar.removeAllEvents();
         calendar.addEventSource(events);
     }
