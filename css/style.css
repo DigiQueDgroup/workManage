@@ -686,7 +686,7 @@ header {
 
 /* もし日付の数字も見えなくなっていたら、ここでも色を固定できます */
 .fc .fc-daygrid-day-number {
-    color: #111111 !important;
+    color: #ffffff !important;
     text-decoration: none !important;
     padding: 4px 8px !important;
 }
