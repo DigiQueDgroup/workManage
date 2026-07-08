@@ -675,3 +675,21 @@ header {
     opacity: 0.5;
     border-color: rgba(255, 255, 255, 0.4) !important;
 }
+/* カレンダーの曜日や日付の文字色をはっきり見えるように修正 */
+.fc .fc-col-header-cell {
+    background-color: #f8f9fa; /* 曜日の背景を薄いグレーにして見やすくする（お好みで消してもOK） */
+}
+
+.fc .fc-col-header-cell-cushion {
+    color: #333333 !important; /* 曜日の文字色を濃いグレー（または黒）にする */
+    text-decoration: none !important; /* 曜日のリンクの下線を消す */
+    padding: 8px 0;
+    display: inline-block;
+}
+
+/* もし日付の数字も見えなくなっていたら、ここでも色を固定できます */
+.fc .fc-daygrid-day-number {
+    color: #333333 !important;
+    text-decoration: none !important;
+    padding: 4px 8px !important;
+}
