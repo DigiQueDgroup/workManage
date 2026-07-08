@@ -6,29 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>課題管理</title>
     <link rel="icon" type="image/x-icon" href="icon/favicon.ico">
-    <!-- fontsの読み込みを早め遅延を減らす -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&display=swap">
-    <!-- fonts通常の読み込み（非同期読み込み） -->
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- デザインはCSSファイル -->
     <link rel="stylesheet" href="css/style.css">
     
-    <!-- JavaScriptはjs下に　※apiとuiの宣言順番は変えない -->
-    <<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script src="js/api.js"></script>
     <script src="js/ui.js"></script>
     
     <link rel="manifest" href="manifest.json">
-    
 </head>
 
 <body>
 
-    <!-- クラス選択画面 -->
     <div id="class-selection-ui">
         <div id="loading-ui">
             <div class="loader"></div>
@@ -36,11 +30,10 @@
         </div>
         <div class="class-selection-container" id="class-selection-container" style="display: none;">
             <div class="class-selection-title">クラスを選択してください</div>
+      
             <div class="class-list-container" id="class-list-buttons">
-                <!-- クラスボタンがここに追加される -->
-            </div>
+                </div>
             
-            <!-- 選択式入力フォーム（セレクトボックス）-->
             <div class="new-class-group">
                 <p style="margin-top:0; font-weight:bold; color:#666;">リストにない場合は新規作成</p>
                 <div style="display: flex; gap: 6px; margin-bottom: 10px;">
@@ -66,8 +59,7 @@
                 </div>
                 <button class="new-class-btn" style="width: 100%; padding: 10px;" onclick="createNewClass()">作成</button>
             </div>
-            <button class="btn" style="margin-top: 20px; background:#eee;" onclick="closeClassSelection()"
-                id="close-selection-btn" style="display:none;">キャンセル</button>
+            <button class="btn" style="margin-top: 20px; background:#eee;" onclick="closeClassSelection()" id="close-selection-btn" style="display:none;">キャンセル</button>
         </div>
     </div>
 
@@ -79,22 +71,21 @@
         </button>
 
         <button class="add-btn" onclick="openAddModal()">新たな課題の追加</button>
-    
-</header> <div class="view-switch-container">
-    <button id="btn-list-view" class="switch-btn active" onclick="switchView('list')">リストで見る</button>
-    <button id="btn-calendar-view" class="switch-btn" onclick="switchView('calendar')">カレンダーで見る</button>
-</div>
+    </header>
 
-<div id="status-msg" style="text-align: center; font-weight: bold; margin-bottom: 20px; display: none;"></div>
+    <main>
+        <div class="view-switch-container">
+            <button id="btn-list-view" class="switch-btn active" onclick="switchView('list')">リストで見る</button>
+            <button id="btn-calendar-view" class="switch-btn" onclick="switchView('calendar')">カレンダーで見る</button>
+        </div>
 
-<div id="task-list" class="task-grid"></div>
+        <div id="status-msg" style="text-align: center; font-weight: bold; margin-bottom: 20px; display: none;">チョークで書き込み中...</div>
 
-<div id="calendar-view"></div>
-    <main id="task-list" class="task-grid"></main>
+        <div id="task-list" class="task-grid"></div>
 
-    <div id="status-msg">チョークで書き込み中...</div>
+        <div id="calendar-view"></div>
+    </main>
 
-    <!-- ネイティブ風ポップアップ -->
     <div id="native-popup" class="native-popup" aria-live="assertive">
         <div class="popup-card">
             <div class="popup-message" id="native-popup-message"></div>
@@ -102,7 +93,6 @@
         </div>
     </div>
 
-    <!-- 課題追加モーダル -->
     <div id="add-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModals()">&times;</span>
@@ -129,7 +119,6 @@
                 <div class="form-group">
                     <label>
                         期限 (yyyy/mm/dd hh:mm)                        
-                        <!-- type="datetime-local"が便利 -->
                         <input type="datetime-local" id="add-deadline">
                     </label>
                 </div>
@@ -141,7 +130,6 @@
         </div>
     </div>
 
-    <!-- 課題詳細・削除モーダル -->
     <div id="detail-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModals()">&times;</span>
@@ -151,22 +139,18 @@
             </div>
             <h2 class="modal-title" id="detail-title" style="border:none; margin-bottom:10px;">課題名</h2>
             <div class="modal-body">
-                <div style="white-space: pre-wrap; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd;"
-                    id="detail-desc">詳細</div>
-                <div style="margin-top: 15px; text-align: right; font-weight: bold; font-size: 1.2rem; color: #d9534f;"
-                    id="detail-deadline">期限</div>
+                <div style="white-space: pre-wrap; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd;" id="detail-desc">詳細</div>
+                <div style="margin-top: 15px; text-align: right; font-weight: bold; font-size: 1.2rem; color: #d9534f;" id="detail-deadline">期限</div>
             </div>
         </div>
     </div>
 
 
-    <!-- 初期ユーザー名設定モーダル -->
     <div id="username-init-modal" class="modal" style="display: none; z-index: 2000; background: rgba(0,0,0,0.85);">
         <div class="modal-content" style="max-width: 360px; text-align: center;">
             <h2 style="margin-top: 0; font-size: 1.3rem; color: #4dadf7;">初期設定</h2>
             <p style="font-size: 0.9rem; margin-bottom: 20px; color: #ccc;">あなたの情報を選択してください。</p>
             
-            <!-- 学年・クラスの選択 -->
             <div style="display: flex; gap: 8px; margin-bottom: 15px; text-align: left;">
                 <div style="flex: 1;">
                     <label style="display:block; font-size: 0.82rem; margin-bottom: 5px; color: #aaa;">学年</label>
@@ -192,9 +176,6 @@
                 </div>
             </div>
 
-        
-
-            <!-- 出席番号の選択（01〜42） -->
             <div style="text-align: left; margin-bottom: 15px;">
                 <label style="display:block; font-size: 0.82rem; margin-bottom: 5px; color: #aaa;">出席番号</label>
                 <select id="init-attendance" style="width: 100%; padding: 10px; border-radius: 6px; background: #2b2b2b; color: #fff; border: 1px solid #444;">
@@ -210,7 +191,6 @@
                 </select>
             </div>
 
-            <!-- 学校コードの選択 -->
             <div style="text-align: left; margin-bottom: 25px;">
                 <label style="display:block; font-size: 0.82rem; margin-bottom: 5px; color: #aaa;">学校コード</label>
                 <select id="init-school" style="width: 100%; padding: 10px; border-radius: 6px; background: #2b2b2b; color: #fff; border: 1px solid #444;">
@@ -226,10 +206,9 @@
 
     <script>
         if ('serviceWorker' in navigator) {
-            // scopeを './' に指定することで、このリポジトリ内だけを管理対象にする
             navigator.serviceWorker.register('sw.js', { scope: './' })
-                .then(registration => console.log('SW registered with scope:', registration.scope))
-                .catch(error => console.log('SW registration failed:', error));
+            .then(registration => console.log('SW registered with scope:', registration.scope))
+            .catch(error => console.log('SW registration failed:', error));
         }
     </script>
 </body>
