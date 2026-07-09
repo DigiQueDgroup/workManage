@@ -765,13 +765,13 @@ header {
 }
 /* --- スマホでGoogleカレンダー風の帯（ラベル）表示にする調整 --- */
 @media screen and (max-width: 480px) {
-    /* 1. 帯（イベント全体）の高さや余白をスマホ用に調整 */
+  /* 1. 帯（イベント全体）の高さや余白をスマホ用に調整 */
     .fc-daygrid-block-event {
         margin: 1px 1px 0 1px !important;
         padding: 2px 4px !important;
-        background-color: #4dadf7 !important; /* 明るい青色の帯にする */
+        /* background-color: #4dadf7 !important; 👈 この行を削除、またはコメントアウトします */
         border: none !important;
-        border-radius: 4px !important; /* 角を少し丸める */
+        border-radius: 4px !important;
     }
 
     /* 2. 完了した課題の帯は、チョーク風に少し薄いグレーにする */
