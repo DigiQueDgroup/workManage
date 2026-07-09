@@ -731,6 +731,7 @@ function renderCalendar() {
             locale: 'ja',
             dayHeaderFormat: { weekday: 'short' },
             eventDisplay: 'block', // 帯（ブロック）表示にする設定
+            displayEventTime: false,
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
