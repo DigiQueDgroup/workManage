@@ -763,31 +763,37 @@ header {
         justify-content: center !important; /* 数字を真ん中寄りに */
     }
 }
-/* --- スマホでカレンダーの教科名を見えるようにする調整 --- */
+/* --- スマホでGoogleカレンダー風の帯（ラベル）表示にする調整 --- */
 @media screen and (max-width: 480px) {
-    /* 1. イベント全体の余白を限界まで削って横幅を広げる */
-    .fc-daygrid-event {
-        padding: 0px 2px !important;
-        line-height: 1.1 !important;
+    /* 1. 帯（イベント全体）の高さや余白をスマホ用に調整 */
+    .fc-daygrid-block-event {
+        margin: 1px 1px 0 1px !important;
+        padding: 2px 4px !important;
+        background-color: #4dadf7 !important; /* 明るい青色の帯にする */
+        border: none !important;
+        border-radius: 4px !important; /* 角を少し丸める */
     }
 
-    /* 2. イベント内の文字コンテナの余白をリセット */
+    /* 2. 完了した課題の帯は、チョーク風に少し薄いグレーにする */
+    .fc-event-done {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        text-decoration: line-through; /* 完了時は中央線を入れる */
+        opacity: 0.6;
+    }
+
+    /* 3. 帯の中の文字を白く、左詰めに密着させる */
     .fc-event-main {
-        padding: 0 !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important; /* 入り切らない文字は「...」にする */
-        white-space: nowrap !important;
-    }
-
-    /* 3. 【重要】スマホのときだけ「時刻（8時など）」を非表示にして、教科名を左詰めで見せる */
-    .fc-event-time {
-        display: none !important; 
-    }
-
-    /* 4. タイトル（[教科名] 課題名）の文字を少し左に寄せて見やすくする */
-    .fc-event-title {
+        color: #ffffff !important;
+        font-size: 0.65rem !important; /* スマホで見やすい極小サイズ */
         font-weight: bold !important;
-        font-size: 0.65rem !important; /* 文字をさらに少しだけ小さく */
-        padding-left: 0 !important;
+        line-height: 1.2 !important;
+        text-align: left !important;
+    }
+
+    /* 曜日や日付の数字が縦並びにならないよう、1行に収めるお守り */
+    .fc .fc-daygrid-day-number {
+        font-size: 0.75rem !important;
+        padding: 2px 4px !important;
+        white-space: nowrap !important;
     }
 }
