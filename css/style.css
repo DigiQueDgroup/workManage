@@ -723,37 +723,31 @@ header {
     min-width: 10px !important; /* ボタンと対称になるスペースを少し確保 */
 }
 /* ==========================================
-   スマホ向け：Googleカレンダー風フル画面化カスタム
+   スマホ向け：カレンダー縦幅拡大＆スクロール快適化
    ========================================== */
 @media screen and (max-width: 480px) {
-    /* 1. カレンダー表示モードの時、画面全体の余白を削ってフル画面にする */
+    /* 1. スクロールを絶対に禁止しない（上下に自由にスクロールできる） */
+    body, html {
+        overflow: auto !important;
+    }
     body:has(#calendar-view:not([style*="display: none"])) {
-        overflow: hidden !important; /* スクロールを止めてアプリ感を出す */
+        overflow: auto !important;
     }
 
-    body:has(#calendar-view:not([style*="display: none"])) #app {
-        height: 100vh !important;
-        display: flex !important;
-        flex-direction: column !important;
-        padding: 8px !important; /* 全体の余白を最小限に */
-    }
-
-    /* 2. カレンダーの土台を画面の高さ限界まで広げる */
+    /* 2. カレンダー全体の高さを「650px」に強制的に引き伸ばす */
     #calendar-view {
-        flex: 1 !important;
-        height: calc(100vh - 120px) !important; /* ヘッダーやボタンの分を除いた全画面 */
-        background: #1c261e !important; /* 黒板の色に合わせる */
-        border-radius: 8px !important;
+        display: block !important;
+        flex: none !important;
+        height: 650px !important; /* スマホ画面の縦幅を越えて大きく広げ、マスを太くする */
+        margin-top: 15px !important;
+        background: #1B4D3E !important; /* 黒板の背景色に合わせる */
         padding: 4px !important;
     }
 
-    /* 3. FullCalendar自体の高さをフルサイズに強制固定 */
+    /* 3. FullCalendarが650pxの高さ限界まで広がるようにする */
     .fc {
         height: 100% !important;
-        font-size: 0.8rem !important;
     }
-
-    /* 4. カレンダー内の縦幅（各日付のマスの高さ）を均等に限界まで伸ばす */
     .fc .fc-view-harness {
         height: 100% !important;
     }
@@ -761,53 +755,42 @@ header {
         height: 100% !important;
     }
 
-    /* 5. 日付の数字の余白を詰める */
+    /* 4. 日付の数字を左上に少し小さく配置し、教科名のスペースを作る */
     .fc .fc-daygrid-day-top {
-        padding: 2px !important;
-        justify-content: flex-start !important; /* 数字を左上に */
+        padding: 2px 4px !important;
+        justify-content: flex-start !important;
+        flex-direction: row !important;
     }
     .fc .fc-daygrid-day-number {
-        font-size: 0.7rem !important;
+        font-size: 0.75rem !important;
         font-weight: bold !important;
-        padding: 0 4px !important;
+        padding: 0 !important;
     }
 
-    /* 6. 【重要】教科名の帯（ブロック）をGoogleカレンダー風にクッキリ見せる */
+    /* 5. 【最重要】教科名の帯をしっかり太くして、文字を見えるようにする */
     .fc-daygrid-block-event {
-        margin: 1px 1px 0 1px !important;
-        padding: 2px 3px !important;
+        margin: 2px 2px 0 2px !important;
+        padding: 4px 6px !important; /* 上下のパディングを広げて帯を太くする */
+        min-height: 24px !important; /* 帯が絶対に潰れないように高さをキープ */
         border: none !important;
-        border-radius: 3px !important;
-        min-height: 16px !important; /* 帯が潰れないように高さを確保 */
+        border-radius: 4px !important;
     }
 
-    /* 7. 帯の中の文字調整（左端からギチギチに詰め込む） */
+    /* 6. 帯の中の文字。日付の数字と被らないよう、クッキリとした白文字にする */
     .fc-event-main {
         color: #ffffff !important;
-        font-size: 0.62rem !important; /* スマホで見える限界の極小サイズ */
+        font-size: 0.75rem !important; /* スマホでも読みやすいサイズ */
         font-weight: bold !important;
-        line-height: 1 !important;
+        line-height: 1.2 !important;
         white-space: nowrap !important;
         overflow: hidden !important;
-        text-overflow: clip !important; /* 1文字でも多く見せるため...にしない */
+        text-overflow: clip !important;
     }
 
-    /* 曜日のヘッダー（日・月・火…）の高さもスマートに */
+    /* 曜日の文字（日、月、火…）のサイズ調整 */
     .fc .fc-col-header-cell-cushion {
-        font-size: 0.75rem !important;
-        padding: 2px 0 !important;
-    }
-    
-    /* カレンダー上部の「2026年7月」などのナビゲーションを小さく綺麗に配置 */
-    .fc .fc-toolbar {
-        margin-bottom: 6px !important;
-    }
-    .fc .fc-toolbar-title {
-        font-size: 1rem !important;
-    }
-    .fc .fc-button {
-        padding: 4px 8px !important;
-        font-size: 0.75rem !important;
+        font-size: 0.8rem !important;
+        padding: 4px 0 !important;
     }
 }
 
