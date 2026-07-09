@@ -735,3 +735,31 @@ header {
         font-size: 1.3rem !important;
     }
 }
+/* --- スマホ向けのカレンダー表示微調整 --- */
+@media screen and (max-width: 480px) {
+    /* 日付の数字（1日、2日など）の文字を小さくし、縦並びを防ぐ */
+    .fc .fc-daygrid-day-number {
+        font-size: 0.75rem !important;
+        padding: 2px 4px !important;
+        white-space: nowrap !important; /* 絶対に途中で改行させない */
+    }
+
+    /* 曜日（日、月、火…）の文字サイズも少し小さくする */
+    .fc .fc-col-header-cell-cushion {
+        font-size: 0.8rem !important;
+        padding: 4px 0 !important;
+    }
+
+    /* カレンダー内のイベント（課題のポッチや文字）の見た目調整 */
+    .fc-daygrid-event {
+        font-size: 0.7rem !important; /* 文字を小さく */
+        margin-top: 1px !important;
+        padding: 1px 2px !important;
+    }
+
+    /* 日付セルの最小の高さを少し詰め、全体を画面に収まりやすくする */
+    .fc .fc-daygrid-day-top {
+        flex-direction: row !important;
+        justify-content: center !important; /* 数字を真ん中寄りに */
+    }
+}
