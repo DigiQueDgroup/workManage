@@ -701,11 +701,13 @@ function renderCalendar() {
     });
 
     if (!calendar) {
-        // カレンダーの初回生成（ここに曜日設定が入っています！）
+        // カレンダーの初回生成
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ja',
-            dayHeaderFormat: { weekday: 'short' }, // 👈 曜日を「月」「火」...と表示
+            dayHeaderFormat: { weekday: 'short' },
+            // 👇 ここにこの1行を追加！イベントをドットではなく「帯（ブロック）」にする設定です
+            eventDisplay: 'block', 
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
