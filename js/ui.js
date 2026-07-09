@@ -684,15 +684,39 @@ function renderCalendar() {
     if (!calendarEl) return;
 
     const doneList = getDoneTasks();
+
+    // 💡 教科ごとの背景色を決定するヘルパー関数
+    function getSubjectColor(subject) {
+        switch (subject) {
+            case '国語':     return '#ff6b6b'; // 赤
+            case '数学':     return '#4dadf7'; // 青
+            case '英語':     return '#51cf66'; // 緑
+            case '地理総合': return '#fcc419'; // 黄色
+            case 'プロ技':   return '#cc5de8'; // 紫
+            case '情デ':     return '#ff922b'; // オレンジ
+            case 'コン制':   return '#20c997'; // エメラルド
+            case '基本情報': return '#339af0'; // 水色
+            case '応用情報': return '#101113'; // ダークグレー
+            case 'ビジマネ': return '#845ef7'; // ラベンダー
+            case '商品開発': return '#ff8787'; // ピンク
+            case 'マーケ':   return '#a9e34b'; // ライム
+            default:       return '#868e96'; // ★「その他」や未登録の教科用の色（グレー）
+        }
+    }
     
     const events = currentTasks.map(task => {
         const isDone = doneList.includes(getTaskFingerprint(task));
         const displayTitle = `[${task.教科 || '不明'}] ${task.課題名 || '無題'}`;
         
+        // 💡 完了していない場合は教科ごとの色、完了している場合は一律で薄いグレーにする
+        const backgroundColor = isDone ? 'rgba(255, 255, 255, 0.2)' : getSubjectColor(task.教科);
+        
         return {
             id: String(task.課題id),
             title: isDone ? `✅ ${displayTitle}` : displayTitle,
             start: task.期限,
+            backgroundColor: backgroundColor, // 💡 ここに背景色を設定
+            borderColor: 'transparent',       // 枠線を消してスッキリさせる
             className: isDone ? 'fc-event-done' : '',
             extendedProps: {
                 originalId: task.課題id
@@ -706,8 +730,7 @@ function renderCalendar() {
             initialView: 'dayGridMonth',
             locale: 'ja',
             dayHeaderFormat: { weekday: 'short' },
-            // 👇 ここにこの1行を追加！イベントをドットではなく「帯（ブロック）」にする設定です
-            eventDisplay: 'block', 
+            eventDisplay: 'block', // 帯（ブロック）表示にする設定
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
@@ -727,7 +750,6 @@ function renderCalendar() {
         calendar.addEventSource(events);
     }
 }
-
 // イベントリスナーの登録
 const handleOutsideClick = (event) => {
     const detailModal = document.getElementById('detail-modal');
