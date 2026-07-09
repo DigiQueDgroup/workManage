@@ -536,8 +536,16 @@ function openDetailModal(id) {
 }
 
 // --- 登録・削除アクション ---
-async function submitTask() {
-    const subject = document.getElementById('add-subject').value.trim();
+async function submitTask() {  
+    let subject = document.getElementById('add-subject').value;
+// もし「その他」が選ばれていたら、自由入力欄の文字を科目名にする
+if (subject === 'その他') {
+    subject = document.getElementById('add-custom-subject').value.trim();
+    if (!subject) {
+        alert('科目の名前を入力してください！');
+        return;
+    }
+}
     const title = document.getElementById('add-title').value.trim();
     const detail = document.getElementById('add-detail').value.trim();
     const deadlineRaw = document.getElementById('add-deadline').value;
@@ -726,7 +734,20 @@ const handleOutsideClick = (event) => {
         closeModals();
     }
 };
-
+// 「その他」が選ばれた時だけ入力欄を表示する処理
+function toggleCustomSubjectInput() {
+    const subjectSelect = document.getElementById('add-subject');
+    const customSubjectGroup = document.getElementById('custom-subject-group');
+    const customSubjectInput = document.getElementById('add-custom-subject');
+    
+    if (subjectSelect.value === 'その他') {
+        customSubjectGroup.style.display = 'block'; // 入力欄を表示
+        customSubjectInput.focus(); // 自動で入力欄にカーソルを合わせる
+    } else {
+        customSubjectGroup.style.display = 'none';  // 入力欄を非表示
+        customSubjectInput.value = '';             // 中身をクリア
+    }
+}
 window.addEventListener('click', handleOutsideClick);
 window.addEventListener('touchstart', handleOutsideClick, { passive: true });
 window.addEventListener('DOMContentLoaded', init);
