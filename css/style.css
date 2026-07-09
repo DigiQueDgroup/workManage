@@ -763,3 +763,31 @@ header {
         justify-content: center !important; /* 数字を真ん中寄りに */
     }
 }
+/* --- スマホでカレンダーの教科名を見えるようにする調整 --- */
+@media screen and (max-width: 480px) {
+    /* 1. イベント全体の余白を限界まで削って横幅を広げる */
+    .fc-daygrid-event {
+        padding: 0px 2px !important;
+        line-height: 1.1 !important;
+    }
+
+    /* 2. イベント内の文字コンテナの余白をリセット */
+    .fc-event-main {
+        padding: 0 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important; /* 入り切らない文字は「...」にする */
+        white-space: nowrap !important;
+    }
+
+    /* 3. 【重要】スマホのときだけ「時刻（8時など）」を非表示にして、教科名を左詰めで見せる */
+    .fc-event-time {
+        display: none !important; 
+    }
+
+    /* 4. タイトル（[教科名] 課題名）の文字を少し左に寄せて見やすくする */
+    .fc-event-title {
+        font-weight: bold !important;
+        font-size: 0.65rem !important; /* 文字をさらに少しだけ小さく */
+        padding-left: 0 !important;
+    }
+}
