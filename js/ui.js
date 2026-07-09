@@ -685,7 +685,7 @@ function renderCalendar() {
 
     const doneList = getDoneTasks();
 
-    // 💡 教科ごとの背景色を決定するヘルパー関数
+    // 💡 教科ごとの背景色を決定する関数
     function getSubjectColor(subject) {
         switch (subject) {
             case '国語':     return '#ff6b6b'; // 赤
@@ -700,24 +700,24 @@ function renderCalendar() {
             case 'ビジマネ': return '#845ef7'; // ラベンダー
             case '商品開発': return '#ff8787'; // ピンク
             case 'マーケ':   return '#a9e34b'; // ライム
-            default:       return '#868e96'; // ★「その他」や未登録の教科用の色（グレー）
+            default:       return '#868e96'; // 「その他」用のグレー
         }
     }
     
     const events = currentTasks.map(task => {
         const isDone = doneList.includes(getTaskFingerprint(task));
         
-        // 💡 [教科名] 課題名 の順に並べ替えたタイトルを作る（スプレッドシートの列名「教科」に合わせる）
+        // [教科名] 課題名 の順に並べ替えたタイトルを作る
         const displayTitle = `[${task.教科 || 'その他'}] ${task.課題名 || '無題'}`;
         
-        // 💡 完了していない場合は教科ごとの色、完了している場合は薄いグレーにする処理
+        // 完了していない場合は教科ごとの色、完了している場合は薄いグレーにする
         const backgroundColor = isDone ? 'rgba(255, 255, 255, 0.2)' : getSubjectColor(task.教科);
         
         return {
             id: String(task.課題id),
-            title: isDone ? `✅ ${displayTitle}` : displayTitle, // 💡 新しいタイトルを適用
+            title: isDone ? `✅ ${displayTitle}` : displayTitle,
             start: task.期限,
-            backgroundColor: backgroundColor, // 💡 教科ごとの背景色を適用
+            backgroundColor: backgroundColor, // 💡 背景色を適用
             borderColor: 'transparent',
             className: isDone ? 'fc-event-done' : '',
             extendedProps: {
@@ -732,8 +732,8 @@ function renderCalendar() {
             initialView: 'dayGridMonth',
             locale: 'ja',
             dayHeaderFormat: { weekday: 'short' },
-            eventDisplay: 'block', // 帯（ブロック）表示にする設定
-            displayEventTime: false,
+            eventDisplay: 'block', 
+            displayEventTime: false, // 💡 時間を完全に非表示にする
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
