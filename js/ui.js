@@ -706,17 +706,19 @@ function renderCalendar() {
     
     const events = currentTasks.map(task => {
         const isDone = doneList.includes(getTaskFingerprint(task));
-        const displayTitle = `[${task.教科 || '不明'}] ${task.課題名 || '無題'}`;
         
-        // 💡 完了していない場合は教科ごとの色、完了している場合は一律で薄いグレーにする
+        // 💡 [教科名] 課題名 の順に並べ替えたタイトルを作る（スプレッドシートの列名「教科」に合わせる）
+        const displayTitle = `[${task.教科 || 'その他'}] ${task.課題名 || '無題'}`;
+        
+        // 💡 完了していない場合は教科ごとの色、完了している場合は薄いグレーにする処理
         const backgroundColor = isDone ? 'rgba(255, 255, 255, 0.2)' : getSubjectColor(task.教科);
         
         return {
             id: String(task.課題id),
-            title: isDone ? `✅ ${displayTitle}` : displayTitle,
+            title: isDone ? `✅ ${displayTitle}` : displayTitle, // 💡 新しいタイトルを適用
             start: task.期限,
-            backgroundColor: backgroundColor, // 💡 ここに背景色を設定
-            borderColor: 'transparent',       // 枠線を消してスッキリさせる
+            backgroundColor: backgroundColor, // 💡 教科ごとの背景色を適用
+            borderColor: 'transparent',
             className: isDone ? 'fc-event-done' : '',
             extendedProps: {
                 originalId: task.課題id
