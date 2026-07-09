@@ -98,12 +98,33 @@
             <span class="close-btn" onclick="closeModals()">&times;</span>
             <h2 class="modal-title">課題の追加</h2>
             <div class="modal-body">
-                <div class="form-group">
-                    <label>
-                        科目名
-                        <input type="text" id="add-subject" placeholder="例: 数学">
-                    </label>
-                </div>
+              <div class="form-group">
+    <label>
+        科目名
+        <select id="add-subject" style="width: 100%; padding: 10px; border: 2px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 1rem; background: #fff; color: #000;">
+            <option value="" disabled selected>科目を選択してください</option>
+            <option value="国語">国語</option>
+            <option value="数学">数学</option>
+            <option value="英語">英語</option>
+            <option value="地理総合">地理総合</option>
+            <option value="プロ技">プロ技</option>
+            <option value="情デ">情デ</option>
+            <option value="コン制">コン制</option>
+            <option value="基本情報">基本情報</option>
+            <option value="応用情報">応用情報</option>
+            <option value="ビジマネ">ビジマネ</option>
+            <option value="商品開発">商品開発</option>
+            <option value="マーケ">マーケ</option>
+            <option value="その他">その他</option>
+        </select>
+    </label>
+</div>
+                <div class="form-group" id="custom-subject-group" style="display: none; margin-top: 10px;">
+    <label>
+        その他の科目名を入力
+        <input type="text" id="add-custom-subject" placeholder="例: 家庭科、美術など" style="width: 100%; padding: 10px; border: 2px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 1rem; background: #fff; color: #000;">
+    </label>
+</div>
                 <div class="form-group">
                     <label>
                         課題名
