@@ -741,7 +741,7 @@ function renderCalendar() {
                 openDetailModal(info.event.extendedProps.originalId);
             },
             handleWindowResize: true,
-            height: 'auto'
+            height: '100%'
         });
         calendar.render();
     } else {
