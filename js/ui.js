@@ -676,15 +676,41 @@ function renderCalendar() {
     if (!calendarEl) return;
 
     const doneList = getDoneTasks();
-    
+
+    // 💡 教科ごとの背景色を決定するヘルパー関数
+    function getSubjectColor(subject) {
+        switch (subject) {
+            case '国語':     return '#ff6b6b'; // 赤
+            case '数学':     return '#4dadf7'; // 青
+            case '英語':     return '#51cf66'; // 緑
+            case '地理総合': return '#fcc419'; // 黄色
+            case 'プロ技':   return '#cc5de8'; // 紫
+            case '情デ':     return '#ff922b'; // オレンジ
+            case 'コン制':   return '#20c997'; // エメラルド
+            case '基本情報': return '#339af0'; // 水色
+            case '応用情報': return '#101113'; // ダークグレー
+            case 'ビジマネ': return '#845ef7'; // ラベンダー
+            case '商品開発': return '#ff8787'; // ピンク
+            case 'マーケ':   return '#a9e34b'; // ライム
+            default:       return '#868e96'; // 「その他」用のグレー
+        }
+    }
+
     const events = currentTasks.map(task => {
         const isDone = doneList.includes(getTaskFingerprint(task));
-        const displayTitle = `[${task.教科 || '不明'}] ${task.課題名 || '無題'}`;
+        
+        // 💡 [教科名] 課題名 の順に並べ替えたタイトルを作る
+        const displayTitle = `[${task.教科 || 'その他'}] ${task.課題名 || '無題'}`;
+        
+        // 💡 完了していない場合は教科ごとの色、完了している場合は薄いグレーにする
+        const backgroundColor = isDone ? 'rgba(255, 255, 255, 0.2)' : getSubjectColor(task.教科);
         
         return {
             id: String(task.課題id),
             title: isDone ? `✅ ${displayTitle}` : displayTitle,
             start: task.期限,
+            backgroundColor: backgroundColor, // 💡 背景色を適用
+            borderColor: 'transparent',       // 枠線をスッキリ消す
             className: isDone ? 'fc-event-done' : '',
             extendedProps: {
                 originalId: task.課題id
@@ -693,11 +719,13 @@ function renderCalendar() {
     });
 
     if (!calendar) {
-        // カレンダーの初回生成（ここに曜日設定が入っています！）
+        // カレンダーの初回生成
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ja',
-            dayHeaderFormat: { weekday: 'short' }, // 👈 曜日を「月」「火」...と表示
+            dayHeaderFormat: { weekday: 'short' },
+            eventDisplay: 'block', 
+            displayEventTime: false, // 💡 これを足して時間を完全に非表示にします
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
@@ -708,7 +736,7 @@ function renderCalendar() {
                 openDetailModal(info.event.extendedProps.originalId);
             },
             handleWindowResize: true,
-            height: 'auto'
+            height: 'auto' // 💡 元々のベースに合わせて 'auto' にしています
         });
         calendar.render();
     } else {
@@ -729,4 +757,3 @@ const handleOutsideClick = (event) => {
 
 window.addEventListener('click', handleOutsideClick);
 window.addEventListener('touchstart', handleOutsideClick, { passive: true });
-window.addEventListener('DOMContentLoaded', init);
