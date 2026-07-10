@@ -723,16 +723,23 @@ header {
     min-width: 10px !important; /* ボタンと対称になるスペースを少し確保 */
 }
 /* ==========================================
-   スマホ向け：カレンダー表示・重複バグ・文字サイズ完全修正版
+   表示バグ修正 ＆ スマホ専用最適化（iPadはPC版と共通）
    ========================================== */
+
+/* 💡 【全端末共通の最優先ルール】リスト表示の時は、画面サイズに関わらず絶対にカレンダーを消す */
+#calendar-view[style*="display: none"] {
+    display: none !important;
+}
+
+/* 📱 純粋なスマートフォン（画面幅が480px以下の端末）だけに適応する調整 */
 @media screen and (max-width: 480px) {
-    /* 1. 左右の余白を極限まで削ってカレンダーの横幅を広くする */
+    /* 左右の余白を極限まで削ってカレンダーの横幅を広くする */
     body {
         padding: 10px 5px 100px 5px !important;
         overflow: auto !important;
     }
 
-    /* 2. ヘッダー（タイトルやクラス選択）の配置を調整 */
+    /* ヘッダー（タイトルやクラス選択）の配置を調整 */
     header {
         flex-direction: column !important;
         gap: 10px !important;
@@ -743,22 +750,17 @@ header {
         padding: 6px 12px !important;
     }
 
-    /* 3. 【超重要バグ修正】リスト表示の時は絶対にカレンダーを表示させない */
-    #calendar-view[style*="display: none"] {
-        display: none !important;
-    }
-
-    /* カレンダー表示中の時だけ、高さをスマホの画面サイズ（縦幅の70%）にピタッと収める */
+    /* スマホのカレンダー表示中のみ、高さを画面縦幅の68%にフィットさせて収める */
     #calendar-view:not([style*="display: none"]) {
         display: block !important;
         flex: none !important;
-        height: 68vh !important; /* 💡 画面サイズに合わせて自動伸縮し、はみ出さない */
+        height: 68vh !important;
         background: #1B4D3E !important;
         padding: 2px !important;
         margin-top: 10px !important;
     }
 
-    /* 4. カレンダー内のボタン（＜ ＞ 今日）の配置 */
+    /* カレンダー内のボタン（＜ ＞ 今日）の配置 */
     .fc .fc-toolbar {
         flex-direction: row !important;
         justify-content: space-between !important;
@@ -773,12 +775,12 @@ header {
         font-size: 0.7rem !important;
     }
 
-    /* 5. FullCalendarに高さを連動 */
+    /* FullCalendarに高さを連動 */
     .fc { height: 100% !important; }
     .fc .fc-view-harness { height: 100% !important; }
     .fc-daygrid-body, .fc-scrollgrid-sync-table { height: 100% !important; }
 
-    /* 6. 日付の数字を左上にコンパクトに配置 */
+    /* 日付の数字を左上にコンパクトに配置 */
     .fc .fc-daygrid-day-top {
         padding: 2px 4px !important;
         justify-content: flex-start !important;
@@ -788,7 +790,7 @@ header {
         font-weight: bold !important;
     }
 
-    /* 7. 教科名の帯（ラベル）のパディングを微調整 */
+    /* 教科名の帯（ラベル）のパディングを微調整 */
     .fc-daygrid-block-event {
         margin: 1px 1px 0 1px !important;
         padding: 2px 3px !important;
@@ -797,14 +799,14 @@ header {
         border-radius: 3px !important;
     }
 
-    /* 8. 【調整】文字サイズを極小にして、2文字以上確実に入れる */
+    /* 文字サイズを極小にして、2文字以上確実に入れる */
     .fc-event-main {
         color: #ffffff !important;
-        font-size: 0.62rem !important; /* 💡 限界まで小さくして文字数を入れる */
+        font-size: 0.62rem !important;
         font-weight: bold !important;
         line-height: 1.1 !important;
         white-space: nowrap !important;
-        overflow: hidden !important;
+        overflow: hidden;
     }
     .fc-event-title {
         padding: 0 !important;
