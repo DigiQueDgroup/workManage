@@ -699,7 +699,7 @@ function renderCalendar() {
     const events = currentTasks.map(task => {
         const isDone = doneList.includes(getTaskFingerprint(task));
         
-        // [教科名] 課題名 の順に並べ替えたタイトルを作る
+        // 💡 [教科名] 課題名 の順に並べ替えたタイトルを作る
         const displayTitle = `[${task.教科 || 'その他'}] ${task.課題名 || '無題'}`;
         
         // 💡 完了していない場合は教科ごとの色、完了している場合は薄いグレーにする
@@ -710,7 +710,7 @@ function renderCalendar() {
             title: isDone ? `✅ ${displayTitle}` : displayTitle,
             start: task.期限,
             backgroundColor: backgroundColor, // 💡 背景色を適用
-            borderColor: 'transparent',       // 枠線を消してスッキリさせる
+            borderColor: 'transparent',       // 枠線をスッキリ消す
             className: isDone ? 'fc-event-done' : '',
             extendedProps: {
                 originalId: task.課題id
@@ -725,8 +725,7 @@ function renderCalendar() {
             locale: 'ja',
             dayHeaderFormat: { weekday: 'short' },
             eventDisplay: 'block', 
-            displayEventTime: false, // 💡 邪魔な時間を非表示にする
-            dayMaxEvents: true,      // 💡 予定がマスからはみ出る場合、自動的に「+他〇件」に折りたたむ（はみ出し防止）
+            displayEventTime: false, // 💡 これを足して時間を完全に非表示にします
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
@@ -737,7 +736,7 @@ function renderCalendar() {
                 openDetailModal(info.event.extendedProps.originalId);
             },
             handleWindowResize: true,
-            height: 650 // 💡 縦幅をガチッと固定して、iPadやPCでマス目がはみ出さないようにします
+            height: 'auto' // 💡 元々のベースに合わせて 'auto' にしています
         });
         calendar.render();
     } else {
