@@ -685,7 +685,7 @@ function renderCalendar() {
 
     const doneList = getDoneTasks();
 
-    // 💡 教科ごとの背景色を決定する関数
+    // 💡 教科ごとの背景色を決定するヘルパー関数
     function getSubjectColor(subject) {
         switch (subject) {
             case '国語':     return '#ff6b6b'; // 赤
@@ -753,6 +753,7 @@ function renderCalendar() {
         calendar.addEventSource(events);
     }
 }
+
 // イベントリスナーの登録
 const handleOutsideClick = (event) => {
     const detailModal = document.getElementById('detail-modal');
@@ -761,6 +762,7 @@ const handleOutsideClick = (event) => {
         closeModals();
     }
 };
+
 // 「その他」が選ばれた時だけ入力欄を表示する処理
 function toggleCustomSubjectInput() {
     const subjectSelect = document.getElementById('add-subject');
@@ -775,6 +777,6 @@ function toggleCustomSubjectInput() {
         customSubjectInput.value = '';             // 中身をクリア
     }
 }
+
 window.addEventListener('click', handleOutsideClick);
-window.addEventListener('touchstart', handleOutsideClick, { passive: true });
-window.addEventListener('DOMContentLoaded', init);
+window.addEventListener('touchstart', handleOutsideClick);
