@@ -536,16 +536,8 @@ function openDetailModal(id) {
 }
 
 // --- 登録・削除アクション ---
-async function submitTask() {  
-    let subject = document.getElementById('add-subject').value;
-// もし「その他」が選ばれていたら、自由入力欄の文字を科目名にする
-if (subject === 'その他') {
-    subject = document.getElementById('add-custom-subject').value.trim();
-    if (!subject) {
-        alert('科目の名前を入力してください！');
-        return;
-    }
-}
+async function submitTask() {
+    const subject = document.getElementById('add-subject').value.trim();
     const title = document.getElementById('add-title').value.trim();
     const detail = document.getElementById('add-detail').value.trim();
     const deadlineRaw = document.getElementById('add-deadline').value;
@@ -684,41 +676,15 @@ function renderCalendar() {
     if (!calendarEl) return;
 
     const doneList = getDoneTasks();
-
-    // 💡 教科ごとの背景色を決定するヘルパー関数
-    function getSubjectColor(subject) {
-        switch (subject) {
-            case '国語':     return '#ff6b6b'; // 赤
-            case '数学':     return '#4dadf7'; // 青
-            case '英語':     return '#51cf66'; // 緑
-            case '地理総合': return '#fcc419'; // 黄色
-            case 'プロ技':   return '#cc5de8'; // 紫
-            case '情デ':     return '#ff922b'; // オレンジ
-            case 'コン制':   return '#20c997'; // エメラルド
-            case '基本情報': return '#339af0'; // 水色
-            case '応用情報': return '#101113'; // ダークグレー
-            case 'ビジマネ': return '#845ef7'; // ラベンダー
-            case '商品開発': return '#ff8787'; // ピンク
-            case 'マーケ':   return '#a9e34b'; // ライム
-            default:       return '#868e96'; // 「その他」用のグレー
-        }
-    }
     
     const events = currentTasks.map(task => {
         const isDone = doneList.includes(getTaskFingerprint(task));
-        
-        // [教科名] 課題名 の順に並べ替えたタイトルを作る
-        const displayTitle = `[${task.教科 || 'その他'}] ${task.課題名 || '無題'}`;
-        
-        // 完了していない場合は教科ごとの色、完了している場合は薄いグレーにする
-        const backgroundColor = isDone ? 'rgba(255, 255, 255, 0.2)' : getSubjectColor(task.教科);
+        const displayTitle = `[${task.教科 || '不明'}] ${task.課題名 || '無題'}`;
         
         return {
             id: String(task.課題id),
             title: isDone ? `✅ ${displayTitle}` : displayTitle,
             start: task.期限,
-            backgroundColor: backgroundColor, // 💡 背景色を適用
-            borderColor: 'transparent',
             className: isDone ? 'fc-event-done' : '',
             extendedProps: {
                 originalId: task.課題id
@@ -727,13 +693,11 @@ function renderCalendar() {
     });
 
     if (!calendar) {
-        // カレンダーの初回生成
+        // カレンダーの初回生成（ここに曜日設定が入っています！）
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ja',
-            dayHeaderFormat: { weekday: 'short' },
-            eventDisplay: 'block', 
-            displayEventTime: false, // 💡 時間を完全に非表示にする
+            dayHeaderFormat: { weekday: 'short' }, // 👈 曜日を「月」「火」...と表示
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
@@ -744,7 +708,7 @@ function renderCalendar() {
                 openDetailModal(info.event.extendedProps.originalId);
             },
             handleWindowResize: true,
-            height: '100%'
+            height: 'auto'
         });
         calendar.render();
     } else {
@@ -763,20 +727,6 @@ const handleOutsideClick = (event) => {
     }
 };
 
-// 「その他」が選ばれた時だけ入力欄を表示する処理
-function toggleCustomSubjectInput() {
-    const subjectSelect = document.getElementById('add-subject');
-    const customSubjectGroup = document.getElementById('custom-subject-group');
-    const customSubjectInput = document.getElementById('add-custom-subject');
-    
-    if (subjectSelect.value === 'その他') {
-        customSubjectGroup.style.display = 'block'; // 入力欄を表示
-        customSubjectInput.focus(); // 自動で入力欄にカーソルを合わせる
-    } else {
-        customSubjectGroup.style.display = 'none';  // 入力欄を非表示
-        customSubjectInput.value = '';             // 中身をクリア
-    }
-}
-
 window.addEventListener('click', handleOutsideClick);
-window.addEventListener('touchstart', handleOutsideClick);
+window.addEventListener('touchstart', handleOutsideClick, { passive: true });
+window.addEventListener('DOMContentLoaded', init);
