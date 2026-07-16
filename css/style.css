@@ -735,3 +735,79 @@ header {
         font-size: 1.3rem !important;
     }
 }
+/* ===================================================
+   💻 パソコン版のカレンダー横幅・右余白バグの完全修正
+   =================================================== */
+
+/* カレンダーを表示するエリア全体の横幅を自動調整し、右余白を潰す */
+#calendar-view {
+    display: block !important;
+    width: 100% !important;
+    max-width: 1200px; /* お好みに合わせて変更可能（画面いっぱいにしたい場合は 100% や 1400px に） */
+    margin: 20px auto 0 auto !important; /* 左右「auto」で画面の中央にぴったり配置 */
+    box-sizing: border-box !important;
+}
+
+/* FullCalendarの内部テーブルが親要素の横幅に100%フィットするように強制 */
+.fc {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.fc-view-harness,
+.fc-scrollgrid {
+    width: 100% !important;
+    min-width: 100% !important;
+}
+
+/* ===================================================
+   📱 iPad ＆ スマホ（画面幅1024px以下）の自動引き締め調整
+   =================================================== */
+@media screen and (max-width: 1024px) {
+    body {
+        padding: 10px 8px 100px 8px !important;
+        overflow: auto !important;
+    }
+
+    #calendar-view {
+        width: 100% !important;
+        margin: 10px 0 0 0 !important;
+    }
+
+    /* 曜日の文字（日、月、火…） */
+    .fc .fc-col-header-cell-cushion {
+        font-size: 0.75rem !important;
+        padding: 4px 0 !important;
+    }
+
+    /* 日付の数字を左上にコンパクトに寄せる */
+    .fc .fc-daygrid-day-top {
+        padding: 2px 4px !important;
+        justify-content: flex-start !important;
+    }
+    .fc .fc-daygrid-day-number {
+        font-size: 0.75rem !important;
+        font-weight: bold !important;
+    }
+
+    /* 教科名の帯（ラベル）のパディングを微調整して文字を潰さないようにする */
+    .fc-daygrid-block-event {
+        margin: 2px 1px 0 1px !important;
+        padding: 3px 4px !important;
+        min-height: 18px !important;
+        border: none !important;
+        border-radius: 3px !important;
+    }
+
+    /* 帯の中の文字サイズを絶妙な極小サイズにして、2文字以上を確実に入れる */
+    .fc-event-main {
+        color: #ffffff !important;
+        font-size: 0.65rem !important;
+        font-weight: bold !important;
+        line-height: 1.1 !important;
+        white-space: nowrap !important;
+        overflow: hidden;
+        padding: 0 !important;
+    }
+}
