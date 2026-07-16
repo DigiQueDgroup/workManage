@@ -151,57 +151,18 @@
         </div>
     </div>
 
-   <!-- 詳細表示・編集用モーダル -->
     <div id="detail-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModals()">&times;</span>
-            
-            <!-- 👁️ 【通常表示モード】のコンテナ -->
-            <div class="view-section">
-                <div class="detail-header">
-                    <div class="detail-subject" id="detail-subject">科目名</div>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-primary" id="detail-edit-btn" style="background-color: #4dadf7; border-color: #4dadf7;">編集</button>
-                        <button class="btn btn-danger" id="detail-delete-btn">削除</button>
-                    </div>
-                </div>
-                <h2 class="modal-title" id="detail-title" style="border:none; margin-bottom:10px;">課題名</h2>
-                <div class="modal-body">
-                    <div style="white-space: pre-wrap; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd;" id="detail-desc">詳細</div>
-                    <div style="margin-top: 15px; text-align: right; font-weight: bold; font-size: 1.2rem; color: #d9534f;" id="detail-deadline">期限</div>
-                </div>
+            <div class="detail-header">
+                <div class="detail-subject" id="detail-subject">科目名</div>
+                <button class="btn btn-danger" id="detail-delete-btn">削除</button>
             </div>
-
-            <!-- ✍️ 【編集入力モード】のコンテナ -->
-            <div class="edit-section" style="display: none;">
-                <div class="detail-header" style="margin-bottom: 15px;">
-                    <div class="detail-subject" style="background: #e9ecef; color: #495057;">課題の編集</div>
-                </div>
-                <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
-                    <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem;">科目名</label>
-                        <input type="text" id="edit-subject" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
-                    </div>
-                    <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem;">課題名</label>
-                        <input type="text" id="edit-title" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
-                    </div>
-                    <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem;">詳細</label>
-                        <textarea id="edit-detail" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; resize: vertical; font-family: inherit;"></textarea>
-                    </div>
-                    <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem;">期限</label>
-                        <input type="datetime-local" id="edit-deadline" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: flex-end;">
-                        <button class="btn" id="detail-cancel-edit-btn" style="background-color: #868e96; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">キャンセル</button>
-                        <button class="btn btn-primary" id="detail-save-btn" style="background-color: #20c997; border-color: #20c997; color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer;">保存する</button>
-                    </div>
-                </div>
+            <h2 class="modal-title" id="detail-title" style="border:none; margin-bottom:10px;">課題名</h2>
+            <div class="modal-body">
+                <div style="white-space: pre-wrap; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd;" id="detail-desc">詳細</div>
+                <div style="margin-top: 15px; text-align: right; font-weight: bold; font-size: 1.2rem; color: #d9534f;" id="detail-deadline">期限</div>
             </div>
-
         </div>
     </div>
 
