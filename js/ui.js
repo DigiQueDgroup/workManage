@@ -164,6 +164,23 @@ async function init() {
     }
 }
 
+// --- 追加: 科目セレクトボックスの挙動制御 ---
+document.addEventListener('DOMContentLoaded', () => {
+    const subjectSelect = document.getElementById('add-subject');
+    const customSubjectGroup = document.getElementById('custom-subject-group');
+    
+    if (subjectSelect && customSubjectGroup) {
+        subjectSelect.addEventListener('change', () => {
+            if (subjectSelect.value === 'その他') {
+                customSubjectGroup.style.display = 'block';
+            } else {
+                customSubjectGroup.style.display = 'none';
+                document.getElementById('add-custom-subject').value = ''; // リセット
+            }
+        });
+    }
+});
+
 /**
  * 初回利用時のユーザー識別コード(userName)生成と保存
  */
@@ -519,6 +536,11 @@ async function openAddModal() {
     document.getElementById('add-title').value = '';
     document.getElementById('add-detail').value = '';
     document.getElementById('add-deadline').value = '';
+
+    // 💡 修正: モーダルを開くたびにカスタム入力欄を非表示かつ空文字にリセット
+    document.getElementById('add-custom-subject').value = '';
+    document.getElementById('custom-subject-group').style.display = 'none';
+
     document.getElementById('add-modal').style.display = 'flex';
 }
 
@@ -537,7 +559,14 @@ function openDetailModal(id) {
 
 // --- 登録・削除アクション ---
 async function submitTask() {
-    const subject = document.getElementById('add-subject').value.trim();
+    // 💡 修正: セレクトボックスの値が「その他」だった場合は、テキストエリアの値を取得する
+    let subject = document.getElementById('add-subject').value;
+    if (subject === 'その他') {
+        subject = document.getElementById('add-custom-subject').value.trim();
+    } else {
+        subject = subject ? subject.trim() : '';
+    }
+
     const title = document.getElementById('add-title').value.trim();
     const detail = document.getElementById('add-detail').value.trim();
     const deadlineRaw = document.getElementById('add-deadline').value;
