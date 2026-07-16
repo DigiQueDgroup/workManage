@@ -713,10 +713,12 @@ function switchView(mode) {
 
 // --- 追加: 「特設リストモーダル(2段構え)」用HTMLと専用スタイルの動的生成 ---
 function createDateTasksModalElement() {
-    if (document.getElementById('date-tasks-modal')) return;
+    // 既にスタイルがあれば何もしない
+    if (document.getElementById('date-tasks-style')) return;
 
-    // 💡 特設モーダル専用のCSSをJS内で動的に定義して優先度を最強化する
+    // 💡 特設モーダル専用のCSSを定義して適用する
     const style = document.createElement('style');
+    style.id = 'date-tasks-style';
     style.innerHTML = `
         #date-tasks-modal {
             display: none;
@@ -750,7 +752,7 @@ function createDateTasksModalElement() {
         #date-tasks-modal.show .modal-content {
             transform: translateY(0);
         }
-        /* 曜日ヘッダーリンクの強制黒・青・赤表示設定 */
+        /* 曜日ヘッダーリンクの強制表示設定 */
         .fc .fc-col-header-cell-cushion {
             text-decoration: none !important;
         }
@@ -760,6 +762,7 @@ function createDateTasksModalElement() {
         }
     `;
     document.head.appendChild(style);
+}
 
     const modal = document.createElement('div');
     modal.id = 'date-tasks-modal';
