@@ -518,7 +518,12 @@ function closeModals() {
     document.getElementById('detail-modal').style.display = 'none';
     
     const dateTasksModal = document.getElementById('date-tasks-modal');
-    if (dateTasksModal) dateTasksModal.style.display = 'none';
+    if (dateTasksModal) {
+        dateTasksModal.classList.remove('show');
+        setTimeout(() => {
+            dateTasksModal.style.display = 'none';
+        }, 150);
+    }
 
     isModalClosing = true;
     setTimeout(() => {
@@ -725,7 +730,7 @@ function createDateTasksModalElement() {
             justify-content: center;
             align-items: center;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.2s ease;
         }
         #date-tasks-modal.show {
             display: flex !important;
@@ -739,7 +744,7 @@ function createDateTasksModalElement() {
             padding: 20px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             transform: translateY(-20px);
-            transition: transform 0.3s ease;
+            transition: transform 0.2s ease;
             color: #333333;
         }
         #date-tasks-modal.show .modal-content {
@@ -748,6 +753,10 @@ function createDateTasksModalElement() {
         /* 曜日ヘッダーリンクの強制黒・青・赤表示設定 */
         .fc .fc-col-header-cell-cushion {
             text-decoration: none !important;
+        }
+        /* 日付セル自体に指カーソルを設定 */
+        .fc .fc-daygrid-day {
+            cursor: pointer !important;
         }
     `;
     document.head.appendChild(style);
@@ -774,10 +783,11 @@ function openDateTasksModal(dateStr) {
     const targetDate = new Date(dateStr);
     const targetYMD = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
 
-    // その日に期限を迎える課題を抽出
+    // その日に期限を迎える課題を抽出 (タイムゾーンのズレに配慮した強固なパース)
     const targetTasks = currentTasks.filter(task => {
         if (!task.期限) return false;
         const taskDate = new Date(task.期限);
+        if (isNaN(taskDate.getTime())) return false;
         const taskYMD = `${taskDate.getFullYear()}-${String(taskDate.getMonth() + 1).padStart(2, '0')}-${String(taskDate.getDate()).padStart(2, '0')}`;
         return taskYMD === targetYMD;
     });
@@ -818,6 +828,7 @@ function openDateTasksModal(dateStr) {
                 e.stopPropagation();
                 // 1段目を隠してから2段目（詳細）を開く
                 document.getElementById('date-tasks-modal').classList.remove('show');
+                document.getElementById('date-tasks-modal').style.display = 'none';
                 openDetailModal(task.課題id);
             };
 
@@ -908,11 +919,16 @@ function renderCalendar() {
             // 💡 2段構え動線対応：予定タップ時はその日の「特設リストモーダル」を開くように修正
             eventClick: function(info) {
                 info.jsEvent.preventDefault();
+                info.jsEvent.stopPropagation(); // 💡 windowへの伝播を止めて、即座に閉じられるのを防ぐ！
                 const eventDate = info.event.start;
                 openDateTasksModal(eventDate);
             },
             // 💡 2段構え動線対応：日付マス自体のタップ時にも「特設リストモーダル」を開く
             dateClick: function(info) {
+                if (info.jsEvent) {
+                    info.jsEvent.preventDefault();
+                    info.jsEvent.stopPropagation(); // 💡 windowへの伝播を止めて、即座に閉じられるのを防ぐ！
+                }
                 openDateTasksModal(info.dateStr);
             },
             // 💡 曜日ヘッダーのテキスト塗り分け（Q1-1: プランB）※!importantで競合を破壊
@@ -956,6 +972,8 @@ const handleOutsideClick = (event) => {
     const detailModal = document.getElementById('detail-modal');
     const addModal = document.getElementById('add-modal');
     const dateTasksModal = document.getElementById('date-tasks-modal');
+    
+    // 開いているモーダルの外側をクリックした時だけ閉じるように厳格化
     if (event.target === detailModal || event.target === addModal || event.target === dateTasksModal) {
         closeModals();
     }
