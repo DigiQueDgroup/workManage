@@ -1029,7 +1029,8 @@ function initFilterUI() {
 
         const span = document.createElement('span');
         span.innerText = subject;
-
+        span.style.color = '#333333';
+        
         wrapper.appendChild(checkbox);
         wrapper.appendChild(span);
         container.appendChild(wrapper);
