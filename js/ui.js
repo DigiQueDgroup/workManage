@@ -92,7 +92,7 @@ function toggleTaskStatus(event, taskId) {
     }
 
     localStorage.setItem(DONE_TASKS, JSON.stringify(doneList));
-    renderTasks(currentTasks); // 画面を即座に更新
+    renderTasks(); // 画面を即座に更新 (フィルター適用)
     if (currentViewMode === 'calendar') renderCalendar(); // カレンダー表示中ならカレンダーも更新
 }
 
@@ -157,7 +157,7 @@ async function init() {
         updateHeader();
         currentTasks = loadCachedTasks(currentClass);
         if (currentTasks.length > 0) {
-            renderTasks(currentTasks);
+            initFilterUI(); // キャッシュがある場合は先にフィルターUIを初期化して描画
             const statusMsg = document.getElementById('status-msg');
             statusMsg.style.display = 'block';
             const online = await isOnline();
@@ -213,7 +213,7 @@ async function fetchClassListOnly() {
     }
 }
 
-// --- クラス選択画面のボタン表示（フィルタリング強化） ---
+// --- クラス選択画面 of ボタン表示（フィルタリング強化） ---
 function updateClassSelectionButtons() {
     const btnContainer = document.getElementById('class-list-buttons');
     btnContainer.innerHTML = '';
@@ -395,7 +395,7 @@ async function loadTasks() {
     const cachedTasks = loadCachedTasks(currentClass);
     if (cachedTasks.length > 0) {
         currentTasks = cachedTasks;
-        renderTasks(currentTasks);
+        initFilterUI(); // フィルターUIを初期化して描画
         statusMsg.innerText = online ? '最新データを取得しています...' : 'オフライン中：前回のデータを表示しています';
     } else if (!online) {
         statusMsg.innerText = 'オフライン中です。前回のデータがありません。';
@@ -422,8 +422,7 @@ async function loadTasks() {
                 if (calendar) calendar.removeAllEvents();
             } else {
                 statusMsg.style.display = 'none';
-                renderTasks(currentTasks);
-
+                initFilterUI(); // 最新データを反映した上でフィルターUIを初期化
                 if (currentViewMode === 'calendar') {
                     renderCalendar();
                 }
@@ -434,7 +433,7 @@ async function loadTasks() {
     } catch (error) {
         if (cachedTasks.length > 0) {
             statusMsg.innerHTML = `データ取得に失敗しました。前回のキャッシュを表示します。<br><small>${error.message}</small>`;
-            renderTasks(cachedTasks);
+            initFilterUI();
         } else {
             statusMsg.innerHTML = `取得に失敗しました。<br><small>${error.message}</small>`;
         }
@@ -467,16 +466,22 @@ function getRemainingTime(isoString) {
     }
 }
 
-// 課題のデータを表示
-function renderTasks(tasks) {
+// 課題のデータを表示 (フィルター考慮)
+function renderTasks() {
     const container = document.getElementById('task-list');
+    if (!container) return;
     container.innerHTML = '';
     const doneList = getDoneTasks();
     
-    const validTasks = tasks.filter(task => task && (task.課題id || task.教科 || task.課題名));
+    // 💡 フィルターが適用された課題のみを取得
+    const filteredTasks = getFilteredTasks();
+    
+    const validTasks = filteredTasks.filter(task => task && (task.課題id || task.教科 || task.課題名));
     if (validTasks.length === 0) {
         const statusMsg = document.getElementById('status-msg');
-        if (statusMsg) {
+        if (statusMsg && currentTasks.length > 0) {
+            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #888; font-weight: bold;">選択した科目の課題はありません。</div>';
+        } else if (statusMsg) {
             statusMsg.style.display = 'block';
             statusMsg.innerText = '現在、課題はありません。';
         }
@@ -764,7 +769,7 @@ function createDateTasksModalElement() {
     document.head.appendChild(style);
 }
 
-// 特定の日付の課題一覧モーダルを開く処理 (2段構えの1段目)
+// 特定の日付の課題一覧モーダルを開く処理 (2段構えの1段目 - フィルター考慮)
 function openDateTasksModal(dateStr) {
     if (isModalClosing) return;
 
@@ -772,8 +777,9 @@ function openDateTasksModal(dateStr) {
     const targetDate = new Date(dateStr);
     const targetYMD = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
 
-    // その日に期限を迎える課題を抽出
-    const targetTasks = currentTasks.filter(task => {
+    // フィルター適用済みの課題の中から抽出
+    const filtered = getFilteredTasks();
+    const targetTasks = filtered.filter(task => {
         if (!task.期限) return false;
         const taskDate = new Date(task.期限);
         if (isNaN(taskDate.getTime())) return false;
@@ -838,7 +844,7 @@ function openDateTasksModal(dateStr) {
     modal.style.display = 'flex';
 }
 
-// --- カレンダーの描画と課題データのプロット ---
+// --- カレンダーの描画と課題データのプロット (フィルター考慮) ---
 function renderCalendar() {
     const calendarEl = document.getElementById('calendar-view');
     if (!calendarEl) return;
@@ -863,7 +869,10 @@ function renderCalendar() {
         }
     }
 
-    const events = currentTasks.map(task => {
+    // 💡 フィルターが適用された課題のみを取得
+    const filteredTasks = getFilteredTasks();
+
+    const events = filteredTasks.map(task => {
         const isDone = doneList.includes(getTaskFingerprint(task));
         const displayTitle = `[${task.教科 || 'その他'}] ${task.課題名 || '無題'}`;
         const backgroundColor = isDone ? 'rgba(255, 255, 255, 0.2)' : getSubjectColor(task.教科);
@@ -1052,25 +1061,11 @@ function saveFilterSettings() {
 
 // フィルターを実際に画面（リスト・カレンダー）に適用する
 function applyFilters() {
-    // チェックボックスから「オフ」にされている科目を取得
-    const checkboxes = document.querySelectorAll('.subject-filter-checkbox');
-    const inactiveSubjects = new Set();
-    checkboxes.forEach(cb => {
-        if (!cb.checked) {
-            inactiveSubjects.add(cb.value);
-        }
-    });
-
-    // 1. リスト表示の絞り込み
-    // リストの課題カード（.task-card などの要素）をループして非表示制御
-    const taskCards = document.querySelectorAll('#task-list > div');
-    taskCards.forEach(card => {
-        // カードのデータから科目を取得 (カスタム属性等がない場合はDOMテキストから判定)
-        // ここでは安全に、各課題データの科目をもとにカードの再描画を行う方針をとります。
-    });
-
-    // 💡 より確実な同期のため、表示データを「フィルター済みのデータ」に差し替えるのではなく、
-    // 描画関数（renderTasks, renderCalendar）側でフィルターを直接参照させます。
+    // リストとカレンダーを再描画するだけで、getFilteredTasks() を経由して自動的に絞り込まれます
+    renderTasks();
+    if (currentViewMode === 'calendar') {
+        renderCalendar();
+    }
 }
 
 // フィルター情報を加味して、表示すべき課題データだけを返す便利関数
