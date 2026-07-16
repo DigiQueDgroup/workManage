@@ -706,20 +706,60 @@ function switchView(mode) {
     }
 }
 
-// --- 追加: 「特設リストモーダル(2段構え)」用HTMLの動的生成 ---
+// --- 追加: 「特設リストモーダル(2段構え)」用HTMLと専用スタイルの動的生成 ---
 function createDateTasksModalElement() {
     if (document.getElementById('date-tasks-modal')) return;
 
+    // 💡 特設モーダル専用のCSSをJS内で動的に定義して優先度を最強化する
+    const style = document.createElement('style');
+    style.innerHTML = `
+        #date-tasks-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999 !important; /* 既存モーダルより最前面に配置 */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6) !important;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #date-tasks-modal.show {
+            display: flex !important;
+            opacity: 1;
+        }
+        #date-tasks-modal .modal-content {
+            background-color: #ffffff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            color: #333333;
+        }
+        #date-tasks-modal.show .modal-content {
+            transform: translateY(0);
+        }
+        /* 曜日ヘッダーリンクの強制黒・青・赤表示設定 */
+        .fc .fc-col-header-cell-cushion {
+            text-decoration: none !important;
+        }
+    `;
+    document.head.appendChild(style);
+
     const modal = document.createElement('div');
     modal.id = 'date-tasks-modal';
-    modal.className = 'modal';
-    modal.style.display = 'none';
     modal.innerHTML = `
         <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
-            <h3 id="date-tasks-title" style="margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid #ccc;"></h3>
+            <h3 id="date-tasks-title" style="margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid #ccc; font-weight: bold; font-size: 1.2rem; color: #333;"></h3>
             <div id="date-tasks-container" style="display: flex; flex-direction: column; gap: 10px; margin: 15px 0;"></div>
-            <div style="text-align: right;">
-                <button class="cancel-btn" onclick="closeModals()">閉じる</button>
+            <div style="text-align: right; margin-top: 15px;">
+                <button class="btn" style="background-color: #e9ecef; color: #495057; border: 1px solid #ced4da; font-weight: bold; padding: 8px 16px; border-radius: 6px; cursor: pointer;" onclick="closeModals()">閉じる</button>
             </div>
         </div>
     `;
@@ -730,6 +770,7 @@ function createDateTasksModalElement() {
 function openDateTasksModal(dateStr) {
     if (isModalClosing) return;
 
+    // 日付指定をパース
     const targetDate = new Date(dateStr);
     const targetYMD = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
 
@@ -748,7 +789,7 @@ function openDateTasksModal(dateStr) {
     containerEl.innerHTML = '';
 
     if (targetTasks.length === 0) {
-        containerEl.innerHTML = '<p style="text-align: center; color: #888; padding: 20px;">この日の締め切り課題はありません。</p>';
+        containerEl.innerHTML = '<p style="text-align: center; color: #888; padding: 20px; font-size: 0.95rem;">この日の締め切り課題はありません。</p>';
     } else {
         const doneList = getDoneTasks();
 
@@ -758,28 +799,36 @@ function openDateTasksModal(dateStr) {
             card.style.cssText = `
                 background: #f8f9fa;
                 border-left: 5px solid ${isDone ? '#868e96' : '#228be6'};
-                border-radius: 4px;
-                padding: 10px;
+                border-radius: 6px;
+                padding: 12px;
                 cursor: pointer;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 gap: 10px;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                transition: transform 0.1s ease;
             `;
+            // クリック時のホバーエフェクト定義
+            card.onmouseenter = () => card.style.transform = 'scale(1.01)';
+            card.onmouseleave = () => card.style.transform = 'scale(1)';
+
             // クリックすると詳細モーダル（2段目）が開く
-            card.onclick = () => {
+            card.onclick = (e) => {
+                e.stopPropagation();
+                // 1段目を隠してから2段目（詳細）を開く
+                document.getElementById('date-tasks-modal').classList.remove('show');
                 openDetailModal(task.課題id);
             };
 
             card.innerHTML = `
-                <div style="flex: 1; min-width: 0;">
-                    <div style="font-size: 0.8rem; font-weight: bold; color: #888;">${task.教科 || '不明'}</div>
-                    <div style="font-size: 0.95rem; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; ${isDone ? 'text-decoration: line-through; color: #aaa;' : ''}">
+                <div style="flex: 1; min-width: 0; text-align: left;">
+                    <div style="font-size: 0.8rem; font-weight: bold; color: #888; margin-bottom: 2px;">${task.教科 || '不明'}</div>
+                    <div style="font-size: 0.95rem; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; ${isDone ? 'text-decoration: line-through; color: #aaa;' : ''}">
                         ${task.課題名 || '無題'}
                     </div>
                 </div>
-                <div style="font-size: 0.8rem; background: ${isDone ? '#e9ecef' : '#e7f5ff'}; color: ${isDone ? '#868e96' : '#228be6'}; padding: 3px 8px; border-radius: 12px; white-space: nowrap;">
+                <div style="font-size: 0.8rem; font-weight: bold; background: ${isDone ? '#e9ecef' : '#e7f5ff'}; color: ${isDone ? '#868e96' : '#228be6'}; padding: 4px 10px; border-radius: 12px; white-space: nowrap;">
                     ${isDone ? '完了' : '未完了'}
                 </div>
             `;
@@ -787,7 +836,11 @@ function openDateTasksModal(dateStr) {
         });
     }
 
-    document.getElementById('date-tasks-modal').style.display = 'flex';
+    const modal = document.getElementById('date-tasks-modal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
 }
 
 // --- カレンダーの描画と課題データのプロット ---
@@ -829,7 +882,7 @@ function renderCalendar() {
             id: String(task.課題id),
             title: isDone ? `✅ ${displayTitle}` : displayTitle,
             start: task.期限,
-            backgroundColor: backgroundColor, // 💡 背景色を適用
+            backgroundColor: backgroundColor, // 背景色を適用
             borderColor: 'transparent',       // 枠線をスッキリ消す
             className: isDone ? 'fc-event-done' : '',
             extendedProps: {
@@ -862,19 +915,19 @@ function renderCalendar() {
             dateClick: function(info) {
                 openDateTasksModal(info.dateStr);
             },
-            // 💡 曜日ヘッダーのテキスト塗り分け（Q1-1: プランB）
+            // 💡 曜日ヘッダーのテキスト塗り分け（Q1-1: プランB）※!importantで競合を破壊
             dayHeaderDidMount: function(arg) {
                 const day = arg.date.getDay(); // 0:日, 1:月, ..., 6:土
                 const linkEl = arg.el.querySelector('.fc-col-header-cell-cushion');
                 if (linkEl) {
-                    linkEl.style.fontWeight = 'bold';
-                    linkEl.style.fontSize = '1.1rem';
+                    linkEl.style.setProperty('font-weight', 'bold', 'important');
+                    linkEl.style.setProperty('font-size', '1.1rem', 'important');
                     if (day === 0) {
-                        linkEl.style.color = '#FF0000'; // 日曜：赤
+                        linkEl.style.setProperty('color', '#FF0000', 'important'); // 日曜：赤
                     } else if (day === 6) {
-                        linkEl.style.color = '#0000FF'; // 土曜：青
+                        linkEl.style.setProperty('color', '#0000FF', 'important'); // 土曜：青
                     } else {
-                        linkEl.style.color = '#000000'; // 平日：黒
+                        linkEl.style.setProperty('color', '#000000', 'important'); // 平日：黒
                     }
                 }
             },
@@ -882,9 +935,9 @@ function renderCalendar() {
             dayCellDidMount: function(arg) {
                 const dayNumberEl = arg.el.querySelector('.fc-daygrid-day-number');
                 if (dayNumberEl) {
-                    dayNumberEl.style.whiteSpace = 'nowrap'; // 絶対に縦に改行させない
-                    dayNumberEl.style.display = 'inline-block';
-                    dayNumberEl.style.wordBreak = 'keep-all';
+                    dayNumberEl.style.setProperty('white-space', 'nowrap', 'important'); // 絶対に縦に改行させない
+                    dayNumberEl.style.setProperty('display', 'inline-block', 'important');
+                    dayNumberEl.style.setProperty('word-break', 'keep-all', 'important');
                 }
             },
             handleWindowResize: true,
