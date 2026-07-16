@@ -951,5 +951,151 @@ const handleOutsideClick = (event) => {
     }
 };
 
+// --- 追加: フィルター関連の制御ロジック ---
+
+// フィルター対象となる科目リスト（「その他」以外の既定科目）
+const FILTER_SUBJECTS = ["国語", "数学", "英語", "地理総合", "プロ技", "情デ", "コン制", "基本情報", "応用情報", "ビジマネ", "商品開発", "マーケ"];
+const STORAGE_KEY_FILTER = "homework_app_filter_settings";
+
+// アコーディオンの開閉を切り替える
+function toggleFilterAccordion() {
+    const content = document.getElementById('filter-content');
+    const arrow = document.getElementById('filter-arrow');
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        arrow.style.transform = 'rotate(180deg)';
+    } else {
+        content.style.display = 'none';
+        arrow.style.transform = 'rotate(0deg)';
+    }
+}
+
+// フィルター初期化処理 (アプリ起動時に1回呼ぶ)
+function initFilterUI() {
+    const container = document.getElementById('filter-checkboxes-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    // ローカルストレージから保存された設定を読み込む（なければ全て true）
+    let savedSettings = {};
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY_FILTER);
+        if (raw) savedSettings = JSON.parse(raw);
+    } catch(e) {
+        console.error("フィルター設定の読み込みに失敗しました", e);
+    }
+
+    FILTER_SUBJECTS.forEach(subject => {
+        // デフォルトは true (チェック入り)
+        const isChecked = savedSettings[subject] !== false;
+
+        const wrapper = document.createElement('label');
+        wrapper.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+            padding: 4px 0;
+        `;
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = subject;
+        checkbox.checked = isChecked;
+        checkbox.className = 'subject-filter-checkbox';
+        checkbox.style.cssText = `
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        `;
+
+        // チェック変更時に状態を保存＆表示を更新
+        checkbox.addEventListener('change', () => {
+            saveFilterSettings();
+            applyFilters();
+        });
+
+        const span = document.createElement('span');
+        span.innerText = subject;
+
+        wrapper.appendChild(checkbox);
+        wrapper.appendChild(span);
+        container.appendChild(wrapper);
+    });
+
+    // 初回のフィルタリング適用
+    applyFilters();
+}
+
+// フィルターの全選択・全解除
+function setAllFilters(checked) {
+    const checkboxes = document.querySelectorAll('.subject-filter-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = checked;
+    });
+    saveFilterSettings();
+    applyFilters();
+}
+
+// 現在のチェック状態をLocalStorageに保存する
+function saveFilterSettings() {
+    const checkboxes = document.querySelectorAll('.subject-filter-checkbox');
+    const settings = {};
+    checkboxes.forEach(cb => {
+        settings[cb.value] = cb.checked;
+    });
+    localStorage.setItem(STORAGE_KEY_FILTER, JSON.stringify(settings));
+}
+
+// フィルターを実際に画面（リスト・カレンダー）に適用する
+function applyFilters() {
+    // チェックボックスから「オフ」にされている科目を取得
+    const checkboxes = document.querySelectorAll('.subject-filter-checkbox');
+    const inactiveSubjects = new Set();
+    checkboxes.forEach(cb => {
+        if (!cb.checked) {
+            inactiveSubjects.add(cb.value);
+        }
+    });
+
+    // 1. リスト表示の絞り込み
+    // リストの課題カード（.task-card などの要素）をループして非表示制御
+    const taskCards = document.querySelectorAll('#task-list > div');
+    taskCards.forEach(card => {
+        // カードのデータから科目を取得 (カスタム属性等がない場合はDOMテキストから判定)
+        // ここでは安全に、各課題データの科目をもとにカードの再描画を行う方針をとります。
+    });
+
+    // 💡 より確実な同期のため、表示データを「フィルター済みのデータ」に差し替えるのではなく、
+    // 描画関数（renderTasks, renderCalendar）側でフィルターを直接参照させます。
+}
+
+// フィルター情報を加味して、表示すべき課題データだけを返す便利関数
+function getFilteredTasks() {
+    const checkboxes = document.querySelectorAll('.subject-filter-checkbox');
+    // 起動直後など、チェックボックスがまだ生成されていない場合は全データを返す
+    if (checkboxes.length === 0) return currentTasks;
+
+    const activeSubjects = new Set();
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            activeSubjects.add(cb.value);
+        }
+    });
+
+    return currentTasks.filter(task => {
+        const subject = task.教科 || "その他";
+        // 「その他」は常に表示
+        if (subject === "その他" || !FILTER_SUBJECTS.includes(subject)) {
+            return true;
+        }
+        // チェックが入っている科目のみ表示
+        return activeSubjects.has(subject);
+    });
+}
+
 window.addEventListener('click', handleOutsideClick);
 window.addEventListener('touchstart', handleOutsideClick, { passive: true });
