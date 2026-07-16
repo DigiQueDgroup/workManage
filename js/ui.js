@@ -677,7 +677,7 @@ function renderCalendar() {
 
     const doneList = getDoneTasks();
 
-    // 教科ごとの背景色を決定するヘルパー関数
+    // 💡 教科ごとの背景色を決定するヘルパー関数
     function getSubjectColor(subject) {
         switch (subject) {
             case '国語':     return '#ff6b6b'; // 赤
@@ -698,15 +698,19 @@ function renderCalendar() {
 
     const events = currentTasks.map(task => {
         const isDone = doneList.includes(getTaskFingerprint(task));
+        
+        // 💡 [教科名] 課題名 の順に並べ替えたタイトルを作る
         const displayTitle = `[${task.教科 || 'その他'}] ${task.課題名 || '無題'}`;
+        
+        // 💡 完了していない場合は教科ごとの色、完了している場合は薄いグレーにする
         const backgroundColor = isDone ? 'rgba(255, 255, 255, 0.2)' : getSubjectColor(task.教科);
         
         return {
             id: String(task.課題id),
             title: isDone ? `✅ ${displayTitle}` : displayTitle,
             start: task.期限,
-            backgroundColor: backgroundColor,
-            borderColor: 'transparent',
+            backgroundColor: backgroundColor, // 💡 背景色を適用
+            borderColor: 'transparent',       // 枠線をスッキリ消す
             className: isDone ? 'fc-event-done' : '',
             extendedProps: {
                 originalId: task.課題id
@@ -715,13 +719,13 @@ function renderCalendar() {
     });
 
     if (!calendar) {
+        // カレンダーの初回生成
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ja',
             dayHeaderFormat: { weekday: 'short' },
             eventDisplay: 'block', 
-            displayEventTime: false,
-            dayMaxEvents: true,
+            displayEventTime: false, // 💡 これを足して時間を完全に非表示にします
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
@@ -732,118 +736,13 @@ function renderCalendar() {
                 openDetailModal(info.event.extendedProps.originalId);
             },
             handleWindowResize: true,
-            height: 650
+            height: 'auto' // 💡 元々のベースに合わせて 'auto' にしています
         });
         calendar.render();
     } else {
+        // 2回目以降はイベントデータだけを最新に更新
         calendar.removeAllEvents();
         calendar.addEventSource(events);
-    }
-}
-
-// 💡 【新規追加】詳細モーダルを編集モードに切り替える関数
-function toggleEditMode(enable) {
-    const detailModal = document.getElementById('detail-modal');
-    if (enable) {
-        detailModal.classList.add('edit-mode');
-    } else {
-        detailModal.classList.remove('edit-mode');
-    }
-}
-
-// 💡 【機能拡張】詳細モーダルを開く処理（編集用の入力フォームに初期値をセット）
-function openDetailModal(id) {
-    if (isModalClosing) return;
-    const task = currentTasks.find(t => t.課題id === id);
-    if (!task) return;
-
-    // 通常表示用のテキストセット
-    document.getElementById('detail-subject').innerText = task.教科 || "不明";
-    document.getElementById('detail-title').innerText = task.課題名 || "無題の課題";
-    document.getElementById('detail-desc').innerText = task.詳細 || "詳細なし";
-    document.getElementById('detail-deadline').innerText = "期限: " + formatDateTime(task.期限);
-
-    // 編集入力フォーム用の初期値セット
-    document.getElementById('edit-subject').value = task.教科 || "";
-    document.getElementById('edit-title').value = task.課題名 || "";
-    document.getElementById('edit-detail').value = task.詳細 || "";
-    
-    // 日付フォーマットの変換 (YYYY-MM-DDTHH:MM)
-    if (task.期限) {
-        const d = new Date(task.期限);
-        if (!isNaN(d.getTime())) {
-            const yyyy = d.getFullYear();
-            const mm = String(d.getMonth() + 1).padStart(2, '0');
-            const dd = String(d.getDate()).padStart(2, '0');
-            const hh = String(d.getHours()).padStart(2, '0');
-            const min = String(d.getMinutes()).padStart(2, '0');
-            document.getElementById('edit-deadline').value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-        }
-    } else {
-        document.getElementById('edit-deadline').value = "";
-    }
-
-    // ボタンのイベント割り当て
-    document.getElementById('detail-edit-btn').onclick = () => toggleEditMode(true);
-    document.getElementById('detail-cancel-edit-btn').onclick = () => toggleEditMode(false);
-    document.getElementById('detail-save-btn').onclick = () => saveEditedTask(id);
-    document.getElementById('detail-delete-btn').onclick = () => confirmDelete(id);
-    
-    toggleEditMode(false); // 必ず通常表示モードから開始
-    document.getElementById('detail-modal').style.display = 'flex';
-}
-
-// 💡 【新規追加】編集した内容をGAS（サーバー）へ送信して上書き保存する処理
-async function saveEditedTask(id) {
-    const subject = document.getElementById('edit-subject').value.trim();
-    const title = document.getElementById('edit-title').value.trim();
-    const detail = document.getElementById('edit-detail').value.trim();
-    const deadlineRaw = document.getElementById('edit-deadline').value;
-
-    const online = await isOnline();
-    if (!online) {
-        showNativePopup('オフライン中は課題の編集ができません。');
-        return;
-    }
-    if (!subject || !title || !deadlineRaw) {
-        showNativePopup('科目名、課題名、期限は必須です。');
-        return;
-    }
-
-    const d = new Date(deadlineRaw);
-    const formattedDeadline = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;
-    
-    // API送信用データ（GASのeditアクションに合わせる、なければaddでID指定などGAS側の仕様に合わせてください）
-    const payload = {
-        action: 'edit', 
-        className: currentClass,
-        id: id,
-        task: { 
-            subject: subject, 
-            title: title, 
-            detail: detail, 
-            deadline: formattedDeadline, 
-            username: userName
-        }
-    };
-
-    try {
-        closeModals();
-        document.getElementById('status-msg').style.display = 'block';
-        document.getElementById('status-msg').innerText = "修正処理中...";
-        
-        // 💡 お使いのAPI送信用関数を実行（※apiAddTask等と同様にGASを叩く想定）
-        // もしGAS側に 'edit' アクションが未実装の場合は、裏で一度deleteしてから新idでaddする形にGAS側を書き換えるか、payloadの調整が必要です。
-        const result = await apiAddTask(payload); // 汎用API関数（またはapiEditTaskなど環境に合わせて変更）
-        if (result.status === 'SUCCESS') {
-            loadTasks();
-        } else {
-            showNativePopup("変更エラー: " + result.status);
-            document.getElementById('status-msg').style.display = 'none';
-        }
-    } catch (e) {
-        showNativePopup("通信エラー: " + e.message);
-        document.getElementById('status-msg').style.display = 'none';
     }
 }
 
