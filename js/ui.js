@@ -834,11 +834,8 @@ function openDateTasksModal(dateStr) {
         });
     }
 
-    const modal = document.getElementById('date-tasks-modal');
+   const modal = document.getElementById('date-tasks-modal');
     modal.style.display = 'flex';
-    setTimeout(() => {
-        modal.classList.add('show');
-    }, 10);
 }
 
 // --- カレンダーの描画と課題データのプロット ---
