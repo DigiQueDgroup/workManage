@@ -735,9 +735,3 @@ header {
         font-size: 1.3rem !important;
     }
 }
-/* 💡 編集モードの切り替え制御 */
-#detail-modal .edit-section { display: none; }
-#detail-modal .view-section { display: block; }
-
-#detail-modal.edit-mode .edit-section { display: block; }
-#detail-modal.edit-mode .view-section { display: none; }
