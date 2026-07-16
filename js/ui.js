@@ -764,20 +764,6 @@ function createDateTasksModalElement() {
     document.head.appendChild(style);
 }
 
-    const modal = document.createElement('div');
-    modal.id = 'date-tasks-modal';
-    modal.innerHTML = `
-        <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
-            <h3 id="date-tasks-title" style="margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid #ccc; font-weight: bold; font-size: 1.2rem; color: #333;"></h3>
-            <div id="date-tasks-container" style="display: flex; flex-direction: column; gap: 10px; margin: 15px 0;"></div>
-            <div style="text-align: right; margin-top: 15px;">
-                <button class="btn" style="background-color: #e9ecef; color: #495057; border: 1px solid #ced4da; font-weight: bold; padding: 8px 16px; border-radius: 6px; cursor: pointer;" onclick="closeModals()">閉じる</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-}
-
 // 特定の日付の課題一覧モーダルを開く処理 (2段構えの1段目)
 function openDateTasksModal(dateStr) {
     if (isModalClosing) return;
@@ -786,7 +772,7 @@ function openDateTasksModal(dateStr) {
     const targetDate = new Date(dateStr);
     const targetYMD = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
 
-    // その日に期限を迎える課題を抽出 (タイムゾーンのズレに配慮した強固なパース)
+    // その日に期限を迎える課題を抽出
     const targetTasks = currentTasks.filter(task => {
         if (!task.期限) return false;
         const taskDate = new Date(task.期限);
@@ -822,14 +808,12 @@ function openDateTasksModal(dateStr) {
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                 transition: transform 0.1s ease;
             `;
-            // クリック時のホバーエフェクト定義
+            
             card.onmouseenter = () => card.style.transform = 'scale(1.01)';
             card.onmouseleave = () => card.style.transform = 'scale(1)';
 
-            // クリックすると詳細モーダル（2段目）が開く
             card.onclick = (e) => {
                 e.stopPropagation();
-                // 1段目を隠してから2段目（詳細）を開く
                 document.getElementById('date-tasks-modal').classList.remove('show');
                 document.getElementById('date-tasks-modal').style.display = 'none';
                 openDetailModal(task.課題id);
@@ -864,40 +848,35 @@ function renderCalendar() {
 
     const doneList = getDoneTasks();
 
-    // 💡 教科ごとの背景色を決定するヘルパー関数
     function getSubjectColor(subject) {
         switch (subject) {
-            case '国語':     return '#ff6b6b'; // 赤
-            case '数学':     return '#4dadf7'; // 青
-            case '英語':     return '#51cf66'; // 緑
-            case '地理総合': return '#fcc419'; // 黄色
-            case 'プロ技':   return '#cc5de8'; // 紫
-            case '情デ':     return '#ff922b'; // オレンジ
-            case 'コン制':   return '#20c997'; // エメラルド
-            case '基本情報': return '#339af0'; // 水色
-            case '応用情報': return '#101113'; // ダークグレー
-            case 'ビジマネ': return '#845ef7'; // ラベンダー
-            case '商品開発': return '#ff8787'; // ピンク
-            case 'マーケ':   return '#a9e34b'; // ライム
-            default:       return '#868e96'; // 「その他」用のグレー
+            case '国語':     return '#ff6b6b';
+            case '数学':     return '#4dadf7';
+            case '英語':     return '#51cf66';
+            case '地理総合': return '#fcc419';
+            case 'プロ技':   return '#cc5de8';
+            case '情デ':     return '#ff922b';
+            case 'コン制':   return '#20c997';
+            case '基本情報': return '#339af0';
+            case '応用情報': return '#101113';
+            case 'ビジマネ': return '#845ef7';
+            case '商品開発': return '#ff8787';
+            case 'マーケ':   return '#a9e34b';
+            default:       return '#868e96';
         }
     }
 
     const events = currentTasks.map(task => {
         const isDone = doneList.includes(getTaskFingerprint(task));
-        
-        // 💡 [教科名] 課題名 の順に並べ替えたタイトルを作る
         const displayTitle = `[${task.教科 || 'その他'}] ${task.課題名 || '無題'}`;
-        
-        // 💡 完了していない場合は教科ごとの色、完了している場合は薄いグレーにする
         const backgroundColor = isDone ? 'rgba(255, 255, 255, 0.2)' : getSubjectColor(task.教科);
         
         return {
             id: String(task.課題id),
             title: isDone ? `✅ ${displayTitle}` : displayTitle,
             start: task.期限,
-            backgroundColor: backgroundColor, // 背景色を適用
-            borderColor: 'transparent',       // 枠線をスッキリ消す
+            backgroundColor: backgroundColor,
+            borderColor: 'transparent',
             className: isDone ? 'fc-event-done' : '',
             extendedProps: {
                 originalId: task.課題id
@@ -906,55 +885,50 @@ function renderCalendar() {
     });
 
     if (!calendar) {
-        // カレンダーの初回生成
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ja',
             dayHeaderFormat: { weekday: 'short' },
             eventDisplay: 'block', 
-            displayEventTime: false, // 時間を完全に非表示
+            displayEventTime: false,
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
                 right: ''
             },
             events: events,
-            // 💡 2段構え動線対応：予定タップ時はその日の「特設リストモーダル」を開くように修正
             eventClick: function(info) {
                 info.jsEvent.preventDefault();
-                info.jsEvent.stopPropagation(); // 💡 windowへの伝播を止めて、即座に閉じられるのを防ぐ！
+                info.jsEvent.stopPropagation();
                 const eventDate = info.event.start;
                 openDateTasksModal(eventDate);
             },
-            // 💡 2段構え動線対応：日付マス自体のタップ時にも「特設リストモーダル」を開く
             dateClick: function(info) {
                 if (info.jsEvent) {
                     info.jsEvent.preventDefault();
-                    info.jsEvent.stopPropagation(); // 💡 windowへの伝播を止めて、即座に閉じられるのを防ぐ！
+                    info.jsEvent.stopPropagation();
                 }
                 openDateTasksModal(info.dateStr);
             },
-            // 💡 曜日ヘッダーのテキスト塗り分け（Q1-1: プランB）※!importantで競合を破壊
             dayHeaderDidMount: function(arg) {
-                const day = arg.date.getDay(); // 0:日, 1:月, ..., 6:土
+                const day = arg.date.getDay();
                 const linkEl = arg.el.querySelector('.fc-col-header-cell-cushion');
                 if (linkEl) {
                     linkEl.style.setProperty('font-weight', 'bold', 'important');
                     linkEl.style.setProperty('font-size', '1.1rem', 'important');
                     if (day === 0) {
-                        linkEl.style.setProperty('color', '#FF0000', 'important'); // 日曜：赤
+                        linkEl.style.setProperty('color', '#FF0000', 'important');
                     } else if (day === 6) {
-                        linkEl.style.setProperty('color', '#0000FF', 'important'); // 土曜：青
+                        linkEl.style.setProperty('color', '#0000FF', 'important');
                     } else {
-                        linkEl.style.setProperty('color', '#000000', 'important'); // 平日：黒
+                        linkEl.style.setProperty('color', '#000000', 'important');
                     }
                 }
             },
-            // 💡 スマホ調整（Q3-1）：日付部分の改行防止とCSS調整
             dayCellDidMount: function(arg) {
                 const dayNumberEl = arg.el.querySelector('.fc-daygrid-day-number');
                 if (dayNumberEl) {
-                    dayNumberEl.style.setProperty('white-space', 'nowrap', 'important'); // 絶対に縦に改行させない
+                    dayNumberEl.style.setProperty('white-space', 'nowrap', 'important');
                     dayNumberEl.style.setProperty('display', 'inline-block', 'important');
                     dayNumberEl.style.setProperty('word-break', 'keep-all', 'important');
                 }
@@ -964,7 +938,6 @@ function renderCalendar() {
         });
         calendar.render();
     } else {
-        // 2回目以降はイベントデータだけを最新に更新
         calendar.removeAllEvents();
         calendar.addEventSource(events);
     }
@@ -976,7 +949,6 @@ const handleOutsideClick = (event) => {
     const addModal = document.getElementById('add-modal');
     const dateTasksModal = document.getElementById('date-tasks-modal');
     
-    // 開いているモーダルの外側をクリックした時だけ閉じるように厳格化
     if (event.target === detailModal || event.target === addModal || event.target === dateTasksModal) {
         closeModals();
     }
