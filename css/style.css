@@ -812,4 +812,41 @@ header {
         transform: none !important;
         font-size: 1.3rem !important;
     }
+    
+}
+/* 右下固定の丸型プラスボタン (Twitter風) */
+.add-task-fab {
+    position: fixed;
+    bottom: 24px;         /* 画面下部からの距離 */
+    right: 24px;          /* 画面右側からの距離 */
+    width: 60px;          /* ボタンの横幅 */
+    height: 60px;         /* ボタンの高さ（横幅と合わせて正円に） */
+    border-radius: 50%;   /* 完全に丸くする */
+    background-color: #fab005; /* 元の「新たな課題の追加」に近い鮮やかな黄色 */
+    color: #111111;       /* プラス文字の色（見やすいように濃い色に） */
+    font-size: 32px;      /* 「＋」のサイズ */
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* 浮かび上がらせる影 */
+    cursor: pointer;
+    z-index: 998;         /* 課題カードなどの上、モーダル（9999）の下に配置 */
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    
+    /* 文字のズレを防ぐため、デフォルトのパディングなどをリセット */
+    padding: 0;
+    line-height: 1;
+}
+
+/* ホバー時（マウスを乗せたとき）のふわっとした演出 */
+.add-task-fab:hover {
+    background-color: #f59f00; /* 少し濃い黄色に */
+    transform: scale(1.08);    /* ほんの少し大きく */
+}
+
+/* クリックした瞬間の沈み込む演出 */
+.add-task-fab:active {
+    transform: scale(0.95);    /* ほんの少し小さく */
 }
