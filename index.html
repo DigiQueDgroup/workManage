@@ -81,6 +81,25 @@
 
         <div id="status-msg" style="text-align: center; font-weight: bold; margin-bottom: 20px; display: none;">チョークで書き込み中...</div>
 
+        <!-- フィルターエリア (アコーディオン型) -->
+        <div class="filter-accordion" style="margin: 10px auto 20px auto; max-width: 600px; background: #fff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <button type="button" onclick="toggleFilterAccordion()" style="width: 100%; padding: 12px 15px; background: #f8f9fa; border: none; text-align: left; font-size: 0.95rem; font-weight: bold; color: #495057; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                <span>🔍 表示する科目を絞り込む</span>
+                <span id="filter-arrow" style="transition: transform 0.2s;">▼</span>
+            </button>
+            <div id="filter-content" style="display: none; padding: 15px; border-top: 1px solid #eee; background: #fff;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed #eee;">
+                    <span style="font-size: 0.85rem; color: #666; font-weight: bold;">科目の選択</span>
+                    <div>
+                        <button onclick="setAllFilters(true)" style="font-size: 0.8rem; padding: 3px 8px; margin-right: 5px; border-radius: 4px; border: 1px solid #ced4da; background: #fff; cursor: pointer;">すべて選択</button>
+                        <button onclick="setAllFilters(false)" style="font-size: 0.8rem; padding: 3px 8px; border-radius: 4px; border: 1px solid #ced4da; background: #fff; cursor: pointer;">解除</button>
+                    </div>
+                </div>
+                <!-- 各科目のチェックボックスがJavaScriptでここに自動生成されます -->
+                <div id="filter-checkboxes-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px;"></div>
+            </div>
+        </div>    
+        
         <div id="task-list" class="task-grid"></div>
 
         <div id="calendar-view"></div>
