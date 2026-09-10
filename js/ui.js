@@ -1127,5 +1127,41 @@ function switchTab(tabName) {
     }
   }
 }
+// タブ切り替え処理（修正版）
+function switchTab(tabName) {
+  // <main> タグ全体を課題エリアとして取得
+  const mainSection = document.querySelector('main');
+  const bentoSection = document.getElementById('bento-section');
+  const fabBtn = document.querySelector('.add-task-fab'); // 右下の＋ボタン
+
+  const tabTask = document.getElementById('tab-task');
+  const tabBento = document.getElementById('tab-bento');
+
+  if (tabName === 'task') {
+    if (mainSection) mainSection.style.display = 'block';
+    if (bentoSection) bentoSection.style.display = 'none';
+    
+    if (tabTask) tabTask.classList.add('active');
+    if (tabBento) tabBento.classList.remove('active');
+
+    // 課題タブの時は右下の＋ボタンを表示
+    if (fabBtn) fabBtn.style.display = 'flex';
+
+  } else if (tabName === 'bento') {
+    if (mainSection) mainSection.style.display = 'none';
+    if (bentoSection) bentoSection.style.display = 'block';
+
+    if (tabBento) tabBento.classList.add('active');
+    if (tabTask) tabTask.classList.remove('active');
+
+    // 弁当タブの時は右下の＋ボタンを非表示
+    if (fabBtn) fabBtn.style.display = 'none';
+
+    // 弁当メニューの読み込み関数を実行（API連携準備）
+    if (typeof loadBentoMenu === 'function') {
+      loadBentoMenu();
+    }
+  }
+}
 window.addEventListener('click', handleOutsideClick);
 window.addEventListener('touchstart', handleOutsideClick, { passive: true });
