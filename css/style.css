@@ -850,3 +850,65 @@ header {
 .add-task-fab:active {
     transform: scale(0.95);    /* ほんの少し小さく */
 }
+/* タブのスタイル */
+.tab-container {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+  justify-content: center;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 20px;
+  background-color: #e0e0e0;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background-color: #fab005; /* テーマ色の黄色 */
+  color: #111;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* 弁当表示エリア */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 10px 0;
+}
+
+.bento-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border: 2px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bento-price {
+  font-size: 20px;
+  font-weight: bold;
+  color: #e67e22;
+  margin: 8px 0;
+}
+
+.order-btn {
+  background-color: #2b8a3e;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+}
