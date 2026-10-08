@@ -72,22 +72,7 @@
 
         <button class="add-task-fab" onclick="openAddModal()" aria-label="課題を追加">＋</button>
     </header>
-<!-- タブ切り替えバー -->
-<div class="tab-container">
-  <button class="tab-btn active" id="tab-task" onclick="switchTab('task')">📚 課題</button>
-  <button class="tab-btn" id="tab-bento" onclick="switchTab('bento')">🍱 弁当予約</button>
-</div>
 
-<!-- 🍱 弁当予約エリア（初期状態は非表示） -->
-<div id="bento-section" style="display: none;">
-  <div class="bento-header">
-    <h3>本日の弁当メニュー</h3>
-  </div>
-  <div id="bento-list" class="bento-grid">
-    <!-- JSでメニューカードがここに自動挿入されます -->
-    <p class="loading-text">メニューを読み込み中...</p>
-  </div>
-</div>
     <main>
         <div class="view-switch-container">
             <button id="btn-list-view" class="switch-btn active" onclick="switchView('list')">リストで見る</button>
